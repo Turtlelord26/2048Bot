@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>_2048Bot</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="utilities/Operators.fs" />
+    <Compile Include="utilities/StringUtils.fs" />
+    <Compile Include="utilities/TupleUtils.fs" />
+    <Compile Include="Tile.fs" />
+    <Compile Include="GameState.fs" />
+    <Compile Include="io/GameStateReader.fs" />
+    <Compile Include="io/GameStateWriter.fs" />
+    <Compile Include="test/GameStateTestStates.fs" />
+    <Compile Include="test/GameStateTestUtils.fs" />
+    <Compile Include="test/GameStateTest.fs" />
+    <Compile Include="Search.fs" />
+    <Compile Include="Milestone1.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+</Project>
