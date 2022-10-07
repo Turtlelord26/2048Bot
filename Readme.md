@@ -20,4 +20,4 @@ From an arbitrary board, use 3-move lookahead via brute-force search to determin
 
 I use a recursively-defined search tree (in Search.fs) to expand from the initial state and collect all of the three-moves-ahead states.
 
-Usage: on command line in the project directory, do `dotnet run Program.fs inputs.txt output.txt
+Usage: on command line in the project directory, do `dotnet run Program.fs 2048_in.txt 2048_out.txt

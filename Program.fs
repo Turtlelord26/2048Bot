@@ -36,7 +36,7 @@ let milestone1 outPath inPath =
 let milestone1Args args =
     match args with
     | [|_; inPath; outPath|] -> inPath |> milestone1 outPath
-    | _ -> printfn "%s" "Milestone 1 usage: Program.fs {input path} {output path}"
+    | _ -> printfn "%s" "Milestone 1 usage: Program.fs 2048_in.txt 2048_out.txt"
 
 [<EntryPoint>]
 let main args =
