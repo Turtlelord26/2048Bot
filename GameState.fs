@@ -26,13 +26,10 @@ type GameState = State of Tile[,] * int
     static member private applyOverCopy func (state: GameState) =
         func (State (state.board |> Array2D.copy, state.score))
     
-    static member private addRandomTile (state: GameState) =
-
-        let newTile = 
-            match random.next 2 with
-            | 0 -> Exponent 1
-            | _ -> Exponent 2
+    static member getIndexedBlankTiles (state: GameState) =
         
+        let (State (tiles, _)) = state
+
         let indexTiles row col tile =
             (tile, (row, col))
         
@@ -40,10 +37,25 @@ type GameState = State of Tile[,] * int
             seq {for i in 0..state.maxRow do board[i,*]}
             |> Array.concat
         
-        let isEmpty tile =
-            match tile with
-            | Blank -> true
-            | _ -> false
+        tiles
+        |> Array2D.mapi indexTiles
+        |> getAllIndexedTiles
+        |> Seq.filter (fst >> Tile.isBlank)
+    
+    static member assignTile tile row col =
+
+        let assignTileToIndex tile row col (State (tiles, score)) =
+            tiles[row,col] <- tile
+            State (tiles, score)
+        
+        GameState.applyOverCopy (assignTileToIndex tile row col)
+    
+    static member addRandomTile (state: GameState) =
+
+        let newTile = 
+            match random.next 2 with
+            | 0 -> Exponent 1
+            | _ -> Exponent 2
         
         let randomTile tiles =
             let index =
@@ -52,25 +64,23 @@ type GameState = State of Tile[,] * int
                 |> random.next
             Seq.item index tiles
         
-        let addTile (board: Tile[,]) =
+        let addTile (tiles: Tile[,]) =
 
             let (row, col) =
-                board
-                |> Array2D.mapi indexTiles
-                |> getAllIndexedTiles
-                |> Seq.filter (fst >> isEmpty)
+                state
+                |> GameState.getIndexedBlankTiles
                 |> randomTile
                 |> snd
 
-            board[row,col] <- newTile
-            board
+            tiles[row,col] <- newTile
+            tiles
         
-        let applyToBoard func (State (tiles, score)) =
+        let applyToTiles func (State (tiles, score)) =
             (func tiles, score)
             |> State
         
         state
-        |> GameState.applyOverCopy (applyToBoard addTile)
+        |> GameState.applyOverCopy (applyToTiles addTile)
     
     static member private shiftRow indexing (board: Tile[,]) maxCol row =
         board[row, 0..maxCol]
@@ -116,7 +126,6 @@ type GameState = State of Tile[,] * int
                 tiles[0..listLen, index] <- shiftedCols[index]
         
         State (tiles, score + shiftScore)
-        |> GameState.addRandomTile
 
     static member shiftLeft (state: GameState) =
         state

@@ -1,12 +1,8 @@
-module TestUtils
+module GameStateTestUtils
 
 open Game
 open StringUtils
-
-let passfail assertion =
-    match assertion with
-    | true -> "Pass"
-    | false -> "Fail"
+open TestUtils
 
 let printGameState (gameState: GameState) =
 
@@ -41,28 +37,15 @@ let printGameState (gameState: GameState) =
     printfn "%s" $"score: {score}"
 
 let testShift preface shiftfn initialState testResult =
-
-    let actualState =
-        initialState
-        |> shiftfn
     
     let printState label state =
         printfn "%s" label
         state
         |> printGameState
 
-    let printStates () =
+    let printStates preface initialState actualState =
         printfn "%s" preface
         printState "Initial State:" initialState
         printState "After Shift:" actualState
     
-    let pass =
-        actualState
-        |> testResult
-    
-    if not pass then printStates ()
-
-    pass
-    |> passfail
-    |> (+) preface
-    |> printfn "%s"
+    executeTest preface initialState shiftfn testResult printStates

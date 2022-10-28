@@ -1,6 +1,7 @@
 module Test
 
 open Game
+open GameStateTestUtils
 open TestUtils
 open TestStates
 open TestStateExpectations

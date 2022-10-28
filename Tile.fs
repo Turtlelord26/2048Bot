@@ -12,7 +12,7 @@ type Tile =
     | Blank
     with
 
-    static member private isBlank tile =
+    static member isBlank tile =
         match tile with
         | Blank -> true
         | Exponent _ -> false

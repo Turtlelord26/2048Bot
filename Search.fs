@@ -25,13 +25,21 @@ type Action =
 
 type SearchTree =
     | Empty
-    | Tree of state: GameState * action: Action * parent: SearchTree * left: SearchTree * right: SearchTree * up: SearchTree * down: SearchTree
+    | Tree of 
+        state: GameState
+        * action: Action
+        * parent: SearchTree
+        * leftChildren: SearchTree seq
+        * rightChildren: SearchTree seq
+        * upChildren: SearchTree seq
+        * downChildren: SearchTree seq
     with
 
     static member scoreOf searchTree =
         match searchTree with
+        | Tree (state, _, _, _, _, _, _) ->
+            state.score
         | Empty -> 0
-        | Tree (state, _, _, _, _, _, _) -> state.score
 
     static member actionOf tree =
         match tree with
@@ -41,7 +49,67 @@ type SearchTree =
             Root
 
     static member toSearchTreeRoot state =
-        Tree (state, Root, Empty, Empty, Empty, Empty, Empty)
+        Tree (state, Root, Empty, Seq.empty, Seq.empty, Seq.empty, Seq.empty)
+    
+    static member mapStateToMany mapper tree =
+
+        match tree with
+        | Tree (state, action, parent, leftChildren, rightChildren, upChildren, downChildren) ->
+            let returnToTrees =
+                Seq.map (fun newState -> Tree (newState, action, parent, leftChildren, rightChildren, upChildren, downChildren))
+            state
+            |> mapper
+            |> returnToTrees
+        | Empty ->
+            Seq.empty
+    
+    static member expandNode tree =
+
+        let addTileAtIndex state (row, col) tile =
+            seq {state |> GameState.assignTile tile row col; }
+        
+        let possibleTiles =
+            seq {Exponent 1; Exponent 2}
+
+        let expandInsertionPossibilities state =
+            state
+            |> GameState.getIndexedBlankTiles
+            |> Seq.map snd
+            |> Seq.map (addTileAtIndex state)
+            |> Seq.allPairs possibleTiles
+            |> Seq.map (fun (tile, assignment) -> assignment tile)
+            |> Seq.concat
+
+        let shift action parent =
+            match parent, action with
+            | Tree (state, _, _, _, _, _, _), Left ->
+                Tree (state |> GameState.shiftLeft, Left, parent, Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
+            | Tree (state, _, _, _, _, _, _), Right ->
+                Tree (state |> GameState.shiftRight, Right, parent,  Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
+            | Tree (state, _, _, _, _, _, _), Up ->
+                Tree (state |> GameState.shiftUp, Up, parent,  Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
+            | Tree (state, _, _, _, _, _, _), Down ->
+                Tree (state |> GameState.shiftDown, Down, parent,  Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
+            | _, _ ->
+                Empty
+        
+        let shiftExpand action =
+            shift action
+            >> SearchTree.mapStateToMany expandInsertionPossibilities
+
+        match tree with
+        | (Tree (state, action, parent, _, _, _, _)) ->
+            Tree (
+                state,
+                action,
+                parent,
+                tree |> shiftExpand Left,
+                tree |> shiftExpand Right,
+                tree |> shiftExpand Up,
+                tree |> shiftExpand Down
+                )
+        | Empty ->
+            Empty
 
     static member getChildren tree =
         match tree with
