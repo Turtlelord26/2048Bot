@@ -5,15 +5,15 @@ open StringUtils
 open Test
 
 let tests () =
-    testBasicShifts false false false false
-    testOrderMatters false
-    testOrderMatters2 false
-    testPackedBoard false
-    testRightUp false
-    testUp2 false
-    testUnlikePacked false
-    testMilestone1SampleFirstMove false
-    testMilestone1SampleSecondMove false
+    testBasicShifts
+    testOrderMatters
+    testOrderMatters2
+    testPackedBoard
+    testRightUp
+    testUp2
+    testUnlikePacked
+    testMilestone1SampleFirstMove
+    testMilestone1SampleSecondMove
     testRead false
 
 let milestone1 outPath inPath =
@@ -33,13 +33,7 @@ let milestone1 outPath inPath =
     |> Result.map (Seq.reduce concatWithNewline)
     |> extractString
 
-let milestone1Args args =
-    match args with
-    | [|_; inPath; outPath|] -> inPath |> milestone1 outPath
-    | _ -> printfn "%s" "Milestone 1 usage: Program.fs 2048_in.txt 2048_out.txt"
-
 [<EntryPoint>]
 let main args =
-    //tests ()
-    milestone1Args args
+    tests ()
     0

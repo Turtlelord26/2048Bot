@@ -3,49 +3,50 @@ module Test
 open Game
 open TestUtils
 open TestStates
+open TestStateExpectations
 open Reader
 
-let testLeftShift visualize =
-    testShift visualize "Test left shift: " GameState.shiftLeft testState expectedLeft
+let testLeftShift  =
+    testShift "Test left shift: " GameState.shiftLeft testState expectedLeft
     
-let testRightShift visualize =
-    testShift visualize "Test right shift: " GameState.shiftRight testState expectedRight
+let testRightShift =
+    testShift "Test right shift: " GameState.shiftRight testState expectedRight
     
-let testUpShift visualize =
-    testShift visualize "Test up shift: " GameState.shiftUp testState expectedUp
+let testUpShift =
+    testShift "Test up shift: " GameState.shiftUp testState expectedUp
     
-let testDownShift visualize =
-    testShift visualize "Test down shift: " GameState.shiftDown testState expectedDown
+let testDownShift =
+    testShift "Test down shift: " GameState.shiftDown testState expectedDown
     
-let testBasicShifts visLeft visRight visUp visDown =
-    testLeftShift visLeft
-    testRightShift visRight
-    testUpShift visUp
-    testDownShift visDown
+let testBasicShifts =
+    testLeftShift
+    testRightShift
+    testUpShift
+    testDownShift
 
-let testOrderMatters visualize =
-    testShift visualize "Test order matters shift: " GameState.shiftLeft initialOrderMattersState expectedOrderMattersState
+let testOrderMatters =
+    testShift "Test order matters shift: " GameState.shiftLeft initialOrderMattersState expectedOrderMattersState
     
-let testOrderMatters2 visualize =
-    testShift visualize "Test order matters shift: " GameState.shiftRight initialOrderMattersState expectedOrderMatters2State
+let testOrderMatters2 =
+    testShift "Test order matters shift: " GameState.shiftRight initialOrderMattersState expectedOrderMatters2State
     
-let testPackedBoard visualize =
-    testShift visualize "Test packed board: " GameState.shiftLeft initialPackedState expectedPackedState
+let testPackedBoard =
+    testShift "Test packed board: " GameState.shiftLeft initialPackedState expectedPackedState
     
-let testRightUp visualize =
-    testShift visualize "RightThenUp: " (GameState.shiftRight >> GameState.shiftUp) testState expectedRightUpState
+let testRightUp =
+    testShift "RightThenUp (Can fail due to random tile adds): " (GameState.shiftRight >> GameState.shiftUp) testState expectedRightUpState
     
-let testUp2 visualize =
-    testShift visualize "TestUp2: " GameState.shiftUp expectedRight expectedRightUpState
+let testUp2 =
+    testShift "TestUp2: " (GameState.shiftRight >> GameState.shiftUp) testState expectedRightUpState
     
-let testUnlikePacked visualize =
-    testShift visualize "TestUnlikePackedRow: " GameState.shiftLeft initialPackedUnlikeState expectedPackedUnlikeState
+let testUnlikePacked =
+    testShift "TestUnlikePackedRow: " GameState.shiftLeft initialPackedUnlikeState expectedPackedUnlikeState
     
-let testMilestone1SampleFirstMove visualize =
-    testShift visualize "TestMilestone1Sample1st: " GameState.shiftLeft milestone1SampleInitial milestone1SampleFirstExpected
+let testMilestone1SampleFirstMove =
+    testShift "TestMilestone1Sample1st: " GameState.shiftLeft milestone1SampleInitial milestone1SampleFirstExpected
     
-let testMilestone1SampleSecondMove visualize =
-    testShift visualize "TestMilestone1Sample2nd: " (GameState.shiftLeft >> GameState.shiftDown) milestone1SampleInitial milestone1SampleSecondExpected
+let testMilestone1SampleSecondMove =
+    testShift "TestMilestone1Sample2nd: " (GameState.shiftLeft >> GameState.shiftDown) milestone1SampleInitial milestone1SampleSecondExpected
     
 let testRead visualize =
     match 

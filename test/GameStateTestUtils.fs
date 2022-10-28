@@ -40,7 +40,7 @@ let printGameState (gameState: GameState) =
     printfn "%s" spacer
     printfn "%s" $"score: {score}"
 
-let testShift visualize preface shiftfn initialState expectation =
+let testShift preface shiftfn initialState testResult =
 
     let actualState =
         initialState
@@ -55,15 +55,14 @@ let testShift visualize preface shiftfn initialState expectation =
         printfn "%s" preface
         printState "Initial State:" initialState
         printState "After Shift:" actualState
-        printState "Expected:" expectation
     
-    if visualize then printStates ()
+    let pass =
+        actualState
+        |> testResult
+    
+    if not pass then printStates ()
 
-    let assertEqual expected actual =
-        expected = actual
-
-    actualState
-    |> assertEqual expectation
+    pass
     |> passfail
     |> (+) preface
     |> printfn "%s"
