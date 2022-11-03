@@ -125,18 +125,18 @@ type GameState = State of Tile[,] * int
         
         State (tiles, score + shiftScore)
 
-    static member shiftLeft (state: GameState) =
-        state
-        |> GameState.applyOverCopy (GameState.shiftAll ByRow Forward)
+    static member shiftLeft =
+        GameState.shiftAll ByRow Forward
+        |> GameState.applyOverCopy
 
-    static member shiftRight (state: GameState) =
-        state
-        |> GameState.applyOverCopy (GameState.shiftAll ByRow Backward)
+    static member shiftRight =
+        GameState.shiftAll ByRow Backward
+        |> GameState.applyOverCopy
     
-    static member shiftUp (state: GameState) =
-        state
-        |> GameState.applyOverCopy (GameState.shiftAll ByColumn Forward)
+    static member shiftUp =
+        GameState.shiftAll ByColumn Forward
+        |> GameState.applyOverCopy
     
-    static member shiftDown (state: GameState) =
-        state
-        |> GameState.applyOverCopy (GameState.shiftAll ByColumn Backward)
+    static member shiftDown =
+        GameState.shiftAll ByColumn Backward
+        |> GameState.applyOverCopy
