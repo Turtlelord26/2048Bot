@@ -23,6 +23,9 @@ type GameState = State of Tile[,] * int
     member this.maxCol =
         Array2D.length1 this.board - 1
     
+    static member initialState rows cols =
+        State (Array2D.create rows cols Blank, 0)
+    
     static member private applyOverCopy func (state: GameState) =
         func (State (state.board |> Array2D.copy, state.score))
     
@@ -50,37 +53,32 @@ type GameState = State of Tile[,] * int
         
         GameState.applyOverCopy (assignTileToIndex tile row col)
     
-    static member addRandomTile (state: GameState) =
+    static member addRandomTile options (state: GameState) =
 
-        let newTile = 
-            match random.next 2 with
-            | 0 -> Exponent 1
-            | _ -> Exponent 2
-        
-        let randomTile tiles =
-            let index =
-                tiles
-                |> Seq.length
-                |> random.next
-            Seq.item index tiles
-        
-        let addTile (tiles: Tile[,]) =
-
-            let (row, col) =
-                state
-                |> GameState.getIndexedBlankTiles
-                |> randomTile
-                |> snd
-
-            tiles[row,col] <- newTile
+        let addTileToIndices row col tile (tiles: Tile[,]) =
+            tiles[row, col] <- tile
             tiles
         
-        let applyToTiles func (State (tiles, score)) =
-            (func tiles, score)
-            |> State
+        let indicesOfRandomBlank =
+            GameState.getIndexedBlankTiles
+            >> Seq.map snd
+            >> randomElementIfNonempty
+        
+        let addTileToRandomBlankIfAny tile state =
+            let (State (tiles, score)) = state
+            match state |> indicesOfRandomBlank with
+            | Some (row, col) ->
+                State (addTileToIndices row col tile tiles, score)
+            | None ->
+                state
+        
+        let addRandomTileFromOptions =
+            options
+            |> randomElement
+            |> addTileToRandomBlankIfAny
         
         state
-        |> GameState.applyOverCopy (applyToTiles addTile)
+        |> GameState.applyOverCopy addRandomTileFromOptions
     
     static member private shiftRow indexing (board: Tile[,]) maxCol row =
         board[row, 0..maxCol]

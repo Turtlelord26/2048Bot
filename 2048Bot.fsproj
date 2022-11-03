@@ -11,9 +11,9 @@
     <Compile Include="utilities/Random.fs" />
     <Compile Include="Tile.fs" />
     <Compile Include="GameState.fs" />
+    <Compile Include="Search.fs" />
     <Compile Include="io/GameStateReader.fs" />
     <Compile Include="io/GameStateWriter.fs" />
-    <Compile Include="Search.fs" />
     <Compile Include="test/TestUtils.fs" />
     <Compile Include="test/GameStateTestStates.fs" />
     <Compile Include="test/GameStateTestExpectations.fs" />

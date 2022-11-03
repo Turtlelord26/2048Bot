@@ -35,7 +35,7 @@ let testPackedBoard =
     testShift "Test packed board: " GameState.shiftLeft initialPackedState expectedPackedState
     
 let testRightUp =
-    testShift "RightThenUp (Can fail due to random tile adds): " (GameState.shiftRight >> GameState.shiftUp) testState expectedRightUpState
+    testShift "RightThenUp: " (GameState.shiftRight >> GameState.shiftUp) testState expectedRightUpState
     
 let testUp2 =
     testShift "TestUp2: " (GameState.shiftRight >> GameState.shiftUp) testState expectedRightUpState

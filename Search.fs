@@ -20,8 +20,8 @@ type Action =
         | Down -> "D"
 
     static member manyToString =
-        List.map Action.toString
-        >> List.reduce concatWithComma
+        Seq.map Action.toString
+        >> Seq.reduce concatWithComma
 
 type SearchTree =
     | Empty
@@ -51,8 +51,7 @@ type SearchTree =
     static member toSearchTreeRoot state =
         Tree (state, Root, Empty, Seq.empty, Seq.empty, Seq.empty, Seq.empty)
     
-    static member mapStateToMany mapper tree =
-
+    static member private mapStateToMany mapper tree =
         match tree with
         | Tree (state, action, parent, leftChildren, rightChildren, upChildren, downChildren) ->
             let returnToTrees =
@@ -63,23 +62,8 @@ type SearchTree =
         | Empty ->
             Seq.empty
     
-    static member expandNode tree =
-
-        let addTileAtIndex state (row, col) tile =
-            seq {state |> GameState.assignTile tile row col; }
+    static member private expandNode additionalProcessing tree =
         
-        let possibleTiles =
-            seq {Exponent 1; Exponent 2}
-
-        let expandInsertionPossibilities state =
-            state
-            |> GameState.getIndexedBlankTiles
-            |> Seq.map snd
-            |> Seq.map (addTileAtIndex state)
-            |> Seq.allPairs possibleTiles
-            |> Seq.map (fun (tile, assignment) -> assignment tile)
-            |> Seq.concat
-
         let shift action parent =
             match parent, action with
             | Tree (state, _, _, _, _, _, _), Left ->
@@ -95,7 +79,7 @@ type SearchTree =
         
         let shiftExpand action =
             shift action
-            >> SearchTree.mapStateToMany expandInsertionPossibilities
+            >> additionalProcessing
 
         match tree with
         | (Tree (state, action, parent, _, _, _, _)) ->
@@ -110,11 +94,35 @@ type SearchTree =
                 )
         | Empty ->
             Empty
+    
+    static member expandNodeWithoutInsertion =
+        SearchTree.expandNode (fun x -> seq {x})
+    
+    static member expandNodeWithExhaustiveInsertion =
+
+        let addTileAtIndex state (row, col) tile =
+            seq {state |> GameState.assignTile tile row col; }
+        
+        let possibleTiles =
+            seq {Exponent 1; Exponent 2}
+        
+        let expandInsertionPossibilities state =
+            state
+            |> GameState.getIndexedBlankTiles
+            |> Seq.map snd
+            |> Seq.map (addTileAtIndex state)
+            |> Seq.allPairs possibleTiles
+            |> Seq.map (fun (tile, assignment) -> tile |> assignment)
+            |> Seq.concat
+
+        SearchTree.expandNode (SearchTree.mapStateToMany expandInsertionPossibilities)
+
 
     static member getChildren tree =
         match tree with
         | Tree (_, _, _, left, right, up, down) ->
             seq {left; right; up; down}
+            |> Seq.concat
         | Empty ->
             Seq.empty
 
