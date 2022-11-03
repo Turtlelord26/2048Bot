@@ -4,6 +4,7 @@ open System
 open System.IO
 open System.Security
 
+open Array2DUtils
 open Game
 open Search
 open StringUtils
@@ -20,42 +21,63 @@ let writeSolutions path solutions =
     | :? NotSupportedException as e -> e.Message |> printfn "%s"
     | :? SecurityException as e -> e.Message |> printfn "%s"
 
+let printGameState (State (board, score)) =
+
+    let printTile tile =
+        match tile |> Tile.score with
+        | i when i > 0 -> i |> sprintf "%-6d"
+        | _ -> sprintf "%6s" ""
+    
+    let encloseWithPipe str =
+        "| " + str + " |"
+
+    let printRow =
+        Seq.map printTile
+        >> Seq.reduce concatWithSpacedPipe
+        >> encloseWithPipe
+    
+    let spacer =
+        seq {for _ in rowIndices board do "---------"}
+        |> Seq.fold (+) "-"
+    
+    let printSlice (board: Tile[,]) row =
+        printRow board[row,*]
+        |> sprintf "%s"
+    
+    let printBoard board =
+        board
+        |> rowIndices
+        |> List.map (printSlice board)
+        |> List.reduce (concatWithDelimiter $"\n{spacer}\n")
+        |> sprintf "%s"
+
+    [sprintf "%s" spacer;
+        printBoard board;
+        sprintf "%s" spacer;
+        sprintf "%s" $"score: {score}";]
+    |> List.reduce concatWithNewline
+
 let writeResult state actions =
-
-    let writeTile tile =
-        match tile with
-        | Exponent value ->
-            value
-            |> Tile.scoreValue
-            |> sprintf "%d"
-        | Blank ->
-            "0"
-
-    let writeTiles tiles =
-        seq {for i in 0..(Array2D.length1 tiles - 1) do tiles[i,*]}
-        |> Seq.map (Seq.map writeTile)
-        |> Seq.map (Seq.reduce concatWithComma)
-        |> Seq.reduce concatWithNewline
-    
-    let writeScore =
-        sprintf "%d"
-        >> (+) "Score: "
-    
-    let writeState (State (tiles, score)) =
-        writeTiles tiles
-        |> concatWithNewline (writeScore score)
     
     let writeActions actions =
+
+        let numActionsStr =
+            actions
+            |> Seq.length
+            |> sprintf "%d"
+            |> (+) "Moves taken: "
+
         actions
         |> Action.manyToString
-        |> concatWithNewline (Seq.length actions |> sprintf "%d" |> (+) "Moves taken: ")
+        |> concatWithNewline numActionsStr
     
-    let outString =
-        writeState state
-        |> concatWithNewline (writeActions actions)
+    let printStateAndActions =
+        printGameState
+        >> concatWithNewline (writeActions actions)
     
     try
-        outString
+        state
+        |> printStateAndActions
         |> printfn "%s"
     with
     | :? ArgumentException as e -> e.Message |> printfn "%s"

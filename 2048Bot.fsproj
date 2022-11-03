@@ -6,12 +6,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="utilities/Operators.fs" />
+    <Compile Include="utilities/Array2DUtils.fs" />
     <Compile Include="utilities/StringUtils.fs" />
     <Compile Include="utilities/TupleUtils.fs" />
     <Compile Include="utilities/Random.fs" />
+    <Compile Include="utilities/ShiftTypes.fs" />
     <Compile Include="Tile.fs" />
+    <Compile Include="Board.fs" />
     <Compile Include="GameState.fs" />
     <Compile Include="Search.fs" />
+    <Compile Include="Play.fs" />
     <Compile Include="io/GameStateReader.fs" />
     <Compile Include="io/GameStateWriter.fs" />
     <Compile Include="test/TestUtils.fs" />

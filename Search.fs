@@ -1,10 +1,10 @@
 module Search
 
+open Board
 open Game
 open StringUtils
 
 type Action =
-    | Root
     | Left
     | Right
     | Up
@@ -13,7 +13,6 @@ type Action =
 
     static member toString action =
         match action with
-        | Root -> ""
         | Left -> "L"
         | Right -> "R"
         | Up -> "U"
@@ -27,7 +26,7 @@ type SearchTree =
     | Empty
     | Tree of 
         state: GameState
-        * action: Action
+        * action: Action option
         * parent: SearchTree
         * leftChildren: SearchTree seq
         * rightChildren: SearchTree seq
@@ -38,18 +37,19 @@ type SearchTree =
     static member scoreOf searchTree =
         match searchTree with
         | Tree (state, _, _, _, _, _, _) ->
-            state.score
-        | Empty -> 0
+            GameState.scoreOf state
+        | Empty ->
+            0
 
     static member actionOf tree =
         match tree with
         | Tree (_, action, _, _, _, _, _) ->
             action
         | Empty ->
-            Root
+            None
 
     static member toSearchTreeRoot state =
-        Tree (state, Root, Empty, Seq.empty, Seq.empty, Seq.empty, Seq.empty)
+        Tree (state, None, Empty, Seq.empty, Seq.empty, Seq.empty, Seq.empty)
     
     static member private mapStateToMany mapper tree =
         match tree with
@@ -67,13 +67,13 @@ type SearchTree =
         let shift action parent =
             match parent, action with
             | Tree (state, _, _, _, _, _, _), Left ->
-                Tree (state |> GameState.shiftLeft, Left, parent, Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
+                Tree (state |> GameState.shiftLeft, Some Left, parent, Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
             | Tree (state, _, _, _, _, _, _), Right ->
-                Tree (state |> GameState.shiftRight, Right, parent,  Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
+                Tree (state |> GameState.shiftRight, Some Right, parent,  Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
             | Tree (state, _, _, _, _, _, _), Up ->
-                Tree (state |> GameState.shiftUp, Up, parent,  Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
+                Tree (state |> GameState.shiftUp, Some Up, parent,  Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
             | Tree (state, _, _, _, _, _, _), Down ->
-                Tree (state |> GameState.shiftDown, Down, parent,  Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
+                Tree (state |> GameState.shiftDown, Some Down, parent,  Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
             | _, _ ->
                 Empty
         
@@ -108,7 +108,8 @@ type SearchTree =
         
         let expandInsertionPossibilities state =
             state
-            |> GameState.getIndexedBlankTiles
+            |> GameState.boardOf
+            |> getIndexedBlankTiles
             |> Seq.map snd
             |> Seq.map (addTileAtIndex state)
             |> Seq.allPairs possibleTiles
@@ -130,7 +131,7 @@ type SearchTree =
         
         let rec climb path tree =
             match tree with
-            | Tree (_, Root, _, _, _, _, _)
+            | Tree (_, None, _, _, _, _, _)
             | Empty ->
                 path
             | Tree (_, _, parent, _, _, _, _) ->

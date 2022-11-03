@@ -1,5 +1,6 @@
 ﻿open Game
 open Random
+open Play
 open Search
 open Test
 open TupleUtils
@@ -16,41 +17,6 @@ let tests () =
     testMilestone1SampleFirstMove
     testMilestone1SampleSecondMove
     testRead false
-
-let makeInitialBoard rows cols numPreplacedTiles initialTileOptions =
-    
-    let rec addRandomTiles options count state =
-        match count with
-        | i when i > 0 ->
-            state
-            |> GameState.addRandomTile options
-            |> addRandomTiles options (count - 1)
-        | _ -> state
-    
-    let addRandomInitialTiles = addRandomTiles initialTileOptions
-
-    GameState.initialState rows cols
-    |> addRandomInitialTiles numPreplacedTiles
-
-let insertRandomTile = 
-    seq {Exponent 1; Exponent 2}
-    |> GameState.addRandomTile
-
-let moveLeft =
-    GameState.shiftLeft
-    >> insertRandomTile
-
-let moveRight =
-    GameState.shiftRight
-    >> insertRandomTile
-
-let moveUp =
-    GameState.shiftUp
-    >> insertRandomTile
-
-let moveDown =
-    GameState.shiftDown
-    >> insertRandomTile
 
 let chooseNthChildMatchingCondition selectChild depth condition =
 
@@ -103,10 +69,8 @@ let playWithLocalSearch localSearch lookaheadDepth moves state = //CORRECTION!! 
 
     let localSearchLookahead lookaheadDepth state =
 
-        let (State (_, startingScore)) = state
-
         let isScoreIncreased node =
-            SearchTree.scoreOf node > startingScore
+            SearchTree.scoreOf node > GameState.scoreOf state
         
         state
         |> localSearch lookaheadDepth isScoreIncreased
@@ -118,7 +82,7 @@ let playWithLocalSearch localSearch lookaheadDepth moves state = //CORRECTION!! 
     let determineAction lookaheadDepth =
         localSearchLookahead lookaheadDepth
         >> Option.map SearchTree.pathToRoot
-        >> Option.map getNextAction
+        >> Option.bind getNextAction
 
     let rec randomLocalSearchIteration lookaheadDepth stepsLeft actionsTaken state =
         match stepsLeft with
@@ -128,7 +92,6 @@ let playWithLocalSearch localSearch lookaheadDepth moves state = //CORRECTION!! 
             | Some Right -> state |> moveRight |> randomLocalSearchIteration lookaheadDepth (stepsLeft - 1) (Right :: actionsTaken)
             | Some Up -> state |> moveUp |> randomLocalSearchIteration lookaheadDepth (stepsLeft - 1) (Up :: actionsTaken)
             | Some Down -> state |> moveDown |> randomLocalSearchIteration lookaheadDepth (stepsLeft - 1) (Down :: actionsTaken)
-            | Some Root
             | None ->
                 state, actionsTaken
         | _ ->
@@ -136,15 +99,11 @@ let playWithLocalSearch localSearch lookaheadDepth moves state = //CORRECTION!! 
     
     state
     |> randomLocalSearchIteration lookaheadDepth moves []
-    |> mapSnd List.rev
+    |> mapSnd Seq.rev
 
 let playWithRandomLocalSearch = playWithLocalSearch randomNthChildMatchingCondition
 
 let playWithMaximalLocalSearch = playWithLocalSearch bestNthChildMatchingCondition
-
-let initialTileOptions = seq {Exponent 1}
-
-let initialState = makeInitialBoard 4 4 2 initialTileOptions
 
 [<EntryPoint>]
 let main args =
@@ -159,7 +118,7 @@ let main args =
         0
     | [|"maximalLocalSearch"|] ->
         initialState
-        |> playWithMaximalLocalSearch 2 25
+        |> playWithMaximalLocalSearch 2 100
         ||> writeResult
         0
     | _ ->
