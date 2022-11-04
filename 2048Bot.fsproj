@@ -16,7 +16,8 @@
     <Compile Include="GameState.fs" />
     <Compile Include="ValidatedGameState.fs" />
     <Compile Include="Search.fs" />
-    <Compile Include="Play.fs" />
+    <Compile Include="Moves.fs" />
+    <Compile Include="Initialization.fs" />
     <Compile Include="io/GameStateReader.fs" />
     <Compile Include="io/GameStateWriter.fs" />
     <Compile Include="test/TestUtils.fs" />

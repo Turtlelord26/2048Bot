@@ -1,6 +1,7 @@
 ﻿open Game
+open Initialization
+open Moves
 open Random
-open Play
 open Search
 open Test
 open Writer
