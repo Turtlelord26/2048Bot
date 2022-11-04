@@ -42,4 +42,7 @@ let makeInitialBoard rows cols numPreplacedTiles initialTileOptions =
 
 let private initialTileOptions = seq {Exponent 1}
 
-let initialState = makeInitialBoard 4 4 2 initialTileOptions
+let initialState =
+    initialTileOptions
+    |> makeInitialBoard 4 4 2
+    |> ValidatedGameState.wrap

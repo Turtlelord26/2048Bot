@@ -177,25 +177,21 @@ let main args =
         0
     | [|"randomLocalSearch"|] ->
         initialState
-        |> ValidatedGameState.wrap
         |> playTrialsWithRandomLocalSearch 100 2
         ||> writeResult
         0
     | [|"maximalLocalSearch"|] ->
         initialState
-        |> ValidatedGameState.wrap
         |> playTrialsWithMaximalLocalSearch 25 2
         ||> writeResult
         0
     | [|"maximalBlanksLocalSearch"|] ->
         initialState
-        |> ValidatedGameState.wrap
         |> playTrialsWithMaximalBlanksLocalSearch 25 2
         ||> writeResult
         0
     | [|"maximalBlanksThenScoreLocalSearch"|] ->
         initialState
-        |> ValidatedGameState.wrap
         |> playTrialsWithMaximalBlanksThenScoreLocalSearch 25 2
         ||> writeResult
         0
