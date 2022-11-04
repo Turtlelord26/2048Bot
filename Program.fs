@@ -59,10 +59,7 @@ let bestNthChildMatchingCondition =
     chooseBest
     |> chooseNthChildMatchingCondition
 
-let playWithLocalSearch localSearch lookaheadDepth moves vstate = //CORRECTION!! REMOVE MOVES PARAMETER. GAMES RUN TO TERMINATION.
-                                                                 //MILESTONE VARIABLE N IS HOW MANY TIMES THE WHOLE GAME IS TO BE RUN
-                                                                 //AND OUTPUT THE BEST TRIAL OF THE N RUNS.
-                                                                 //SO FOR NOW DO ONE RUN AND AFTER VERIFICATION STEPS RUN IT THE FULL N TIMES.
+let playWithLocalSearch localSearch lookaheadDepth vstate =
 
     let localSearchLookahead lookaheadDepth state =
 
@@ -114,9 +111,22 @@ let playWithLocalSearch localSearch lookaheadDepth moves vstate = //CORRECTION!!
     vstate
     |> randomLocalSearchIteration lookaheadDepth []
 
-let playWithRandomLocalSearch = playWithLocalSearch randomNthChildMatchingCondition
+let bestTrialOfPlayWithLocalSearch localSearch trials lookaheadDepth initialState =
 
-let playWithMaximalLocalSearch = playWithLocalSearch bestNthChildMatchingCondition
+    let score =
+        fst
+        >> ValidatedGameState.stateOf
+        >> GameState.scoreOf
+
+    seq {for _ in 1..trials do yield playWithLocalSearch localSearch lookaheadDepth initialState}
+    |> Seq.maxBy score
+
+
+let playTrialsWithRandomLocalSearch =
+    bestTrialOfPlayWithLocalSearch randomNthChildMatchingCondition
+
+let playTrialsWithMaximalLocalSearch =
+    bestTrialOfPlayWithLocalSearch bestNthChildMatchingCondition
 
 [<EntryPoint>]
 let main args =
@@ -127,13 +137,13 @@ let main args =
     | [|"randomLocalSearch"|] ->
         initialState
         |> ValidatedGameState.wrap
-        |> playWithRandomLocalSearch 2 100
+        |> playTrialsWithRandomLocalSearch 100 2
         ||> writeResult
         0
     | [|"maximalLocalSearch"|] ->
         initialState
         |> ValidatedGameState.wrap
-        |> playWithMaximalLocalSearch 2 100
+        |> playTrialsWithMaximalLocalSearch 25 2
         ||> writeResult
         0
     | _ ->
