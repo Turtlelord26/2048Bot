@@ -58,5 +58,5 @@ let testRead visualize =
     with
     | Ok state ->
         $"Test Input Reading: {state = milestone1SampleInitial |> passfail}" |> printfn "%s"
-        if visualize then state |> printGameState |> printfn "%s"
+        if visualize then state |> ValidatedGameState.wrap |> printGameState |> printfn "%s"
     | Error error -> error |> printfn "%s"

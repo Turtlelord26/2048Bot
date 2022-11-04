@@ -8,6 +8,7 @@ let testShift preface shiftfn initialState testResult =
     let printState label state =
         printfn "%s" label
         state
+        |> Game.ValidatedGameState.wrap
         |> printGameState
 
     let printStates preface initialState actualState =

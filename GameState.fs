@@ -2,7 +2,10 @@ namespace Game
 
 open TupleUtils
 
-type GameState = State of Tile[,] * int
+type GameState =
+    State of 
+        board: Tile[,]
+        * score: int
     with
     
     static member boardOf (State (board, _)) = board

@@ -3,7 +3,6 @@ open Random
 open Play
 open Search
 open Test
-open TupleUtils
 open Writer
 
 let tests () =
@@ -24,13 +23,11 @@ let chooseNthChildMatchingCondition selectChild depth condition =
         match depths with
         | i when i > 1 ->
             Seq.map SearchTree.expandNodeWithExhaustiveInsertion
-            >> Seq.map SearchTree.getChildren
-            >> Seq.concat
+            >> Seq.collect SearchTree.getChildren
             >> searchToDepth (depths - 1)
         | 1 ->
             Seq.map SearchTree.expandNodeWithoutInsertion
-            >> Seq.map SearchTree.getChildren
-            >> Seq.concat
+            >> Seq.collect SearchTree.getChildren
         | 0 ->
             id
         | _ ->
@@ -62,7 +59,7 @@ let bestNthChildMatchingCondition =
     chooseBest
     |> chooseNthChildMatchingCondition
 
-let playWithLocalSearch localSearch lookaheadDepth moves state = //CORRECTION!! REMOVE MOVES PARAMETER. GAMES RUN TO TERMINATION.
+let playWithLocalSearch localSearch lookaheadDepth moves vstate = //CORRECTION!! REMOVE MOVES PARAMETER. GAMES RUN TO TERMINATION.
                                                                  //MILESTONE VARIABLE N IS HOW MANY TIMES THE WHOLE GAME IS TO BE RUN
                                                                  //AND OUTPUT THE BEST TRIAL OF THE N RUNS.
                                                                  //SO FOR NOW DO ONE RUN AND AFTER VERIFICATION STEPS RUN IT THE FULL N TIMES.
@@ -84,22 +81,38 @@ let playWithLocalSearch localSearch lookaheadDepth moves state = //CORRECTION!! 
         >> Option.map SearchTree.pathToRoot
         >> Option.bind getNextAction
 
-    let rec randomLocalSearchIteration lookaheadDepth stepsLeft actionsTaken state =
-        match stepsLeft with
-        | i when i > 0 ->
-            match state |> determineAction lookaheadDepth with
-            | Some Left -> state |> moveLeft |> randomLocalSearchIteration lookaheadDepth (stepsLeft - 1) (Left :: actionsTaken)
-            | Some Right -> state |> moveRight |> randomLocalSearchIteration lookaheadDepth (stepsLeft - 1) (Right :: actionsTaken)
-            | Some Up -> state |> moveUp |> randomLocalSearchIteration lookaheadDepth (stepsLeft - 1) (Up :: actionsTaken)
-            | Some Down -> state |> moveDown |> randomLocalSearchIteration lookaheadDepth (stepsLeft - 1) (Down :: actionsTaken)
+    let rec randomLocalSearchIteration lookaheadDepth actionsTaken (vstate: ValidatedGameState) =
+        match vstate |> ValidatedGameState.statusOf with
+        | Valid ->
+            match 
+                vstate
+                |> ValidatedGameState.stateOf
+                |> determineAction lookaheadDepth
+            with
+            | Some Left ->
+                vstate
+                |> ValidatedGameState.map moveLeft
+                |> randomLocalSearchIteration lookaheadDepth (Left :: actionsTaken)
+            | Some Right ->
+                vstate
+                |> ValidatedGameState.map moveRight
+                |> randomLocalSearchIteration lookaheadDepth (Right :: actionsTaken)
+            | Some Up ->
+                vstate
+                |> ValidatedGameState.map moveUp
+                |> randomLocalSearchIteration lookaheadDepth (Up :: actionsTaken)
+            | Some Down ->
+                vstate
+                |> ValidatedGameState.map moveDown
+                |> randomLocalSearchIteration lookaheadDepth (Down :: actionsTaken)
             | None ->
-                state, actionsTaken
-        | _ ->
-            state, actionsTaken
+                vstate, actionsTaken |> Seq.rev
+        | Victory
+        | Defeat ->
+            vstate, actionsTaken |> Seq.rev
     
-    state
-    |> randomLocalSearchIteration lookaheadDepth moves []
-    |> mapSnd Seq.rev
+    vstate
+    |> randomLocalSearchIteration lookaheadDepth []
 
 let playWithRandomLocalSearch = playWithLocalSearch randomNthChildMatchingCondition
 
@@ -113,11 +126,13 @@ let main args =
         0
     | [|"randomLocalSearch"|] ->
         initialState
+        |> ValidatedGameState.wrap
         |> playWithRandomLocalSearch 2 100
         ||> writeResult
         0
     | [|"maximalLocalSearch"|] ->
         initialState
+        |> ValidatedGameState.wrap
         |> playWithMaximalLocalSearch 2 100
         ||> writeResult
         0

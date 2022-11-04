@@ -24,6 +24,10 @@ let getCols board =
     |> colIndices
     |> List.map (getCol board)
 
+let getTiles =
+    getRows
+    >> Seq.concat
+
 let getIndexedBlankTiles =
 
     let indexTiles row col tile =
