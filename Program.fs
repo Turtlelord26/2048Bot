@@ -43,9 +43,9 @@ let randomNthChildMatchingCondition =
     randomElementIfNonempty
     |> chooseNthChildMatchingCondition
 
-let bestNthChildMatchingCondition =
+let bestScoringNthChildMatchingCondition =
 
-    let chooseBest trees =
+    let chooseBestScore trees =
         if
             trees
             |> Seq.isEmpty
@@ -56,7 +56,42 @@ let bestNthChildMatchingCondition =
             |> Seq.maxBy SearchTree.scoreOf
             |> Some
 
-    chooseBest
+    chooseBestScore
+    |> chooseNthChildMatchingCondition
+
+let mostOpenSpaceNthChildMatchingCondition =
+
+    let chooseMostOpenSpaces trees =
+        if
+            trees
+            |> Seq.isEmpty
+        then
+            None
+        else
+            trees
+            |> Seq.maxBy SearchTree.countBlanks
+            |> Some
+    
+    chooseMostOpenSpaces
+    |> chooseNthChildMatchingCondition
+
+let mostOpenSpaceWithHighestScoreNthChildMatchingCondition =
+
+    let chooseMostOpenSpacesWithHighestScore trees =
+        if
+            trees
+            |> Seq.isEmpty
+        then
+            None
+        else
+            trees
+            |> Seq.groupBy SearchTree.countBlanks
+            |> Seq.maxBy fst
+            |> snd
+            |> Seq.maxBy SearchTree.scoreOf
+            |> Some
+    
+    chooseMostOpenSpacesWithHighestScore
     |> chooseNthChildMatchingCondition
 
 let playWithLocalSearch localSearch lookaheadDepth vstate =
@@ -126,7 +161,13 @@ let playTrialsWithRandomLocalSearch =
     bestTrialOfPlayWithLocalSearch randomNthChildMatchingCondition
 
 let playTrialsWithMaximalLocalSearch =
-    bestTrialOfPlayWithLocalSearch bestNthChildMatchingCondition
+    bestTrialOfPlayWithLocalSearch bestScoringNthChildMatchingCondition
+
+let playTrialsWithMaximalBlanksLocalSearch =
+    bestTrialOfPlayWithLocalSearch mostOpenSpaceNthChildMatchingCondition
+
+let playTrialsWithMaximalBlanksThenScoreLocalSearch =
+    bestTrialOfPlayWithLocalSearch mostOpenSpaceWithHighestScoreNthChildMatchingCondition
 
 [<EntryPoint>]
 let main args =
@@ -144,6 +185,18 @@ let main args =
         initialState
         |> ValidatedGameState.wrap
         |> playTrialsWithMaximalLocalSearch 25 2
+        ||> writeResult
+        0
+    | [|"maximalBlanksLocalSearch"|] ->
+        initialState
+        |> ValidatedGameState.wrap
+        |> playTrialsWithMaximalBlanksLocalSearch 25 2
+        ||> writeResult
+        0
+    | [|"maximalBlanksThenScoreLocalSearch"|] ->
+        initialState
+        |> ValidatedGameState.wrap
+        |> playTrialsWithMaximalBlanksThenScoreLocalSearch 25 2
         ||> writeResult
         0
     | _ ->

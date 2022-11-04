@@ -1,6 +1,5 @@
 module Search
 
-open Board
 open Game
 open StringUtils
 
@@ -38,6 +37,17 @@ type SearchTree =
         match searchTree with
         | Tree (state, _, _, _, _, _, _) ->
             GameState.scoreOf state
+        | Empty ->
+            0
+    
+    static member countBlanks searchTree =
+        match searchTree with
+        | Tree (state, _, _, _, _, _, _) ->
+            state
+            |> GameState.boardOf
+            |> Board.getTiles
+            |> Seq.filter Tile.isBlank
+            |> Seq.length
         | Empty ->
             0
 
@@ -109,7 +119,7 @@ type SearchTree =
         let expandInsertionPossibilities state =
             state
             |> GameState.boardOf
-            |> getIndexedBlankTiles
+            |> Board.getIndexedBlankTiles
             |> Seq.map snd
             |> Seq.map (addTileAtIndex state)
             |> Seq.allPairs possibleTiles
