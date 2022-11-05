@@ -7,7 +7,7 @@ open Operators
 open Random
 open Search
 
-let private nthChildrenMatchingCondition depth condition =
+let private nthChildren depth =
 
     let rec searchToDepth depths =
         match depths with
@@ -26,48 +26,45 @@ let private nthChildrenMatchingCondition depth condition =
     SearchTree.toSearchTreeRoot
     >> Seq.singleton
     >> searchToDepth depth
-    >> Seq.filter condition
 
-let private randomNthChildMatchingCondition depth condition =
-    nthChildrenMatchingCondition depth condition
-    >> randomElementIfNonempty
-    >>= SearchTree.getRootCauseAction
+let private randomNthChildMatchingCondition depth state =
 
-let private bestScoringNthChildMatchingCondition depth condition =
+    let startingScore = GameState.scoreOf state
 
-    let chooseBestScore trees =
-        if
-            trees
-            |> Seq.isEmpty
-        then
-            None
-        else
-            trees
-            |> Seq.maxBy SearchTree.scoreOf
-            |> SearchTree.getRootCauseAction
-
-    nthChildrenMatchingCondition depth condition
-    >> chooseBestScore
-
-let private mostOpenSpaceNthChildMatchingCondition depth condition =
-
-    let chooseMostOpenSpaces trees =
-        if
-            trees
-            |> Seq.isEmpty
-        then
-            None
-        else
-            trees
-            |> Seq.maxBy SearchTree.countBlanks
-            |> SearchTree.getRootCauseAction
+    let isScoreIncreased node =
+        SearchTree.scoreOf node > startingScore
     
-    nthChildrenMatchingCondition depth condition
-    >> chooseMostOpenSpaces
+    let chooseByRandomImprovedScore =
+        Seq.filter isScoreIncreased
+        >> randomElementIfNonempty
+        >>= SearchTree.getRootCauseAction
 
-let private mostOpenSpaceWithHighestScoreNthChildMatchingCondition depth condition =
+    state
+    |> nthChildren depth
+    |> chooseByRandomImprovedScore
 
-    let chooseMostOpenSpacesWithHighestScore trees =
+let private bestScoringNthChildMatchingCondition depth =
+
+    let chooseByBestScore trees =
+        if
+            trees
+            |> Seq.isEmpty
+        then
+            None
+        else
+            trees
+            |> Seq.groupBy SearchTree.scoreOf
+            |> Seq.maxBy fst
+            |> snd
+            |> randomElement
+            |> SearchTree.getRootCauseAction
+
+    nthChildren depth
+    >> chooseByBestScore
+
+let private mostOpenSpaceNthChildMatchingCondition depth =
+
+    let chooseByMostOpenSpaces trees =
         if
             trees
             |> Seq.isEmpty
@@ -78,29 +75,15 @@ let private mostOpenSpaceWithHighestScoreNthChildMatchingCondition depth conditi
             |> Seq.groupBy SearchTree.countBlanks
             |> Seq.maxBy fst
             |> snd
-            |> Seq.maxBy SearchTree.scoreOf
+            |> randomElement
             |> SearchTree.getRootCauseAction
     
-    nthChildrenMatchingCondition depth condition
-    >> chooseMostOpenSpacesWithHighestScore
+    nthChildren depth
+    >> chooseByMostOpenSpaces
 
-let private bestExpectedScoringNthChildMatchingCondition depth condition =
+let private mostOpenSpaceWithHighestScoreNthChildMatchingCondition depth =
 
-    let groupTreesByRootCauseAction =
-        Seq.groupBy SearchTree.getRootCauseAction
-    
-    let expectedScoreOf =
-        Seq.map SearchTree.scoreOf
-        >> Seq.map RunningAverage.construct
-        >> Seq.sum
-        >> RunningAverage.consume
-    
-    let bestActionByScoreExpectation =
-        groupTreesByRootCauseAction
-        >> Seq.maxBy (snd >> expectedScoreOf)
-        >> fst
-
-    let chooseBestScoreExpectation trees =
+    let chooseByMostOpenSpacesWithHighestScore trees =
         if
             trees
             |> Seq.isEmpty
@@ -108,25 +91,42 @@ let private bestExpectedScoringNthChildMatchingCondition depth condition =
             None
         else
             trees
-            |> bestActionByScoreExpectation
+            |> Seq.groupBy SearchTree.countBlanks
+            |> Seq.maxBy fst
+            |> snd
+            |> Seq.groupBy SearchTree.scoreOf
+            |> Seq.maxBy fst
+            |> snd
+            |> randomElement
+            |> SearchTree.getRootCauseAction
     
-    nthChildrenMatchingCondition depth condition
-    >> chooseBestScoreExpectation
+    nthChildren depth
+    >> chooseByMostOpenSpacesWithHighestScore
 
-let private playWithLocalSearch localSearch lookaheadDepth vstate =
-
-    let localSearchLookahead lookaheadDepth state =
-
-        let startingScore = GameState.scoreOf state
-
-        let isScoreIncreased node =
-            SearchTree.scoreOf node > startingScore
-        
-        state
-        |> localSearch lookaheadDepth isScoreIncreased
+let private bestExpectedScoringNthChildMatchingCondition depth =
     
-    let determineAction lookaheadDepth =
-        localSearchLookahead lookaheadDepth
+    let expectedScoreOf =
+        Seq.map SearchTree.scoreOf
+        >> Seq.map RunningAverage.construct
+        >> Seq.sum
+        >> RunningAverage.consume
+
+    let chooseByBestScoreExpectation trees =
+        if
+            trees
+            |> Seq.isEmpty
+        then
+            None
+        else
+            trees
+            |> Seq.groupBy SearchTree.getRootCauseAction
+            |> Seq.maxBy (snd >> expectedScoreOf)
+            |> fst
+    
+    nthChildren depth
+    >> chooseByBestScoreExpectation
+
+let private playWithSearch determineNextAction lookaheadDepth =
 
     let rec randomLocalSearchIteration lookaheadDepth actionsTaken (vstate: ValidatedGameState) =
         match vstate |> ValidatedGameState.statusOf with
@@ -134,7 +134,7 @@ let private playWithLocalSearch localSearch lookaheadDepth vstate =
             match 
                 vstate
                 |> ValidatedGameState.stateOf
-                |> determineAction lookaheadDepth
+                |> determineNextAction lookaheadDepth
             with
             | Some Left ->
                 vstate
@@ -158,30 +158,29 @@ let private playWithLocalSearch localSearch lookaheadDepth vstate =
         | Defeat ->
             vstate, actionsTaken |> Seq.rev
     
-    vstate
-    |> randomLocalSearchIteration lookaheadDepth []
+    randomLocalSearchIteration lookaheadDepth []
 
-let private bestTrialOfPlayWithLocalSearch localSearch trials lookaheadDepth initialState =
+let private bestTrialOfPlayWithSearch search trials lookaheadDepth initialState =
 
     let score =
         fst
         >> ValidatedGameState.stateOf
         >> GameState.scoreOf
 
-    seq {for _ in 1..trials do playWithLocalSearch localSearch lookaheadDepth initialState}
+    seq {for _ in 1..trials do playWithSearch search lookaheadDepth initialState}
     |> Seq.maxBy score
 
 let playTrialsWithRandomLocalSearch =
-    bestTrialOfPlayWithLocalSearch randomNthChildMatchingCondition
+    bestTrialOfPlayWithSearch randomNthChildMatchingCondition
 
 let playTrialsWithMaximalLocalSearch =
-    bestTrialOfPlayWithLocalSearch bestScoringNthChildMatchingCondition
+    bestTrialOfPlayWithSearch bestScoringNthChildMatchingCondition
 
 let playTrialsWithMaximalBlanksLocalSearch =
-    bestTrialOfPlayWithLocalSearch mostOpenSpaceNthChildMatchingCondition
+    bestTrialOfPlayWithSearch mostOpenSpaceNthChildMatchingCondition
 
 let playTrialsWithMaximalBlanksThenScoreLocalSearch =
-    bestTrialOfPlayWithLocalSearch mostOpenSpaceWithHighestScoreNthChildMatchingCondition
+    bestTrialOfPlayWithSearch mostOpenSpaceWithHighestScoreNthChildMatchingCondition
 
 let playTrialsWithMaximalScoreExpectationLocalSearch =
-    bestTrialOfPlayWithLocalSearch bestExpectedScoringNthChildMatchingCondition
+    bestTrialOfPlayWithSearch bestExpectedScoringNthChildMatchingCondition
