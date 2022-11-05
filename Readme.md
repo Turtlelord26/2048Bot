@@ -36,6 +36,9 @@ There are clear problems in the bot's handling of high-value tiles that I hope w
 
 Usage: on command line in the project directory, `dotnet run {keyword}`
 
+For random local search, the bot will run 100 games and output the results with the highest score.
+For all other searches, the bot will print the highest-scoring result from 25 games.
+
 Output:
 - For no arguments, will print usage
 - For argument `test`, will run unit tests
