@@ -41,5 +41,11 @@ let main args =
         |> playTrialsWithMaximalBlanksThenScoreLocalSearch 25 2
         ||> writeResult
         0
+    | [|"maximalExpectedScoreLocalSearch"|] ->
+        initialState
+        |> playTrialsWithMaximalScoreExpectationLocalSearch 25 2
+        ||> writeResult
+        0
     | _ ->
+        "Unrecognized Input" |> printfn "%s"
         1

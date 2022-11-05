@@ -128,7 +128,6 @@ type SearchTree =
 
         SearchTree.expandNode (SearchTree.mapStateToMany expandInsertionPossibilities)
 
-
     static member getChildren tree =
         match tree with
         | Tree (_, _, _, left, right, up, down) ->
@@ -148,3 +147,7 @@ type SearchTree =
                 climb (parent :: path) parent
         
         climb [tree] tree
+    
+    static member getRootCauseAction =
+        SearchTree.pathToRoot
+        >> Seq.tryPick SearchTree.actionOf
