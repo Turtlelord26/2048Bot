@@ -12,11 +12,11 @@
     <Compile Include="utilities/Random.fs" />
     <Compile Include="utilities/RunningAverage.fs" />
     <Compile Include="utilities/ShiftTypes.fs" />
-    <Compile Include="Tile.fs" />
-    <Compile Include="Board.fs" />
-    <Compile Include="GameState.fs" />
-    <Compile Include="ValidatedGameState.fs" />
-    <Compile Include="Search.fs" />
+    <Compile Include="gameplay/Tile.fs" />
+    <Compile Include="gameplay/Board.fs" />
+    <Compile Include="gameplay/GameState.fs" />
+    <Compile Include="gameplay/ValidatedGameState.fs" />
+    <Compile Include="SearchTree.fs" />
     <Compile Include="gameplay/Moves.fs" />
     <Compile Include="gameplay/Initialization.fs" />
     <Compile Include="LocalSearch.fs" />
