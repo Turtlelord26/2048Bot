@@ -20,7 +20,6 @@
     <Compile Include="gameplay/Moves.fs" />
     <Compile Include="gameplay/Initialization.fs" />
     <Compile Include="LocalSearch.fs" />
-    <Compile Include="io/GameStateReader.fs" />
     <Compile Include="io/GameStateWriter.fs" />
     <Compile Include="test/TestUtils.fs" />
     <Compile Include="test/GameStateTestStates.fs" />
