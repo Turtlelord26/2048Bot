@@ -27,7 +27,7 @@ let private nthChildren depth =
     >> Seq.singleton
     >> searchToDepth depth
 
-let private randomNthChildMatchingCondition depth state =
+let private chooseActionByRandomImprovedScore depth state =
 
     let startingScore = GameState.scoreOf state
 
@@ -43,7 +43,7 @@ let private randomNthChildMatchingCondition depth state =
     |> nthChildren depth
     |> chooseByRandomImprovedScore
 
-let private bestScoringNthChildMatchingCondition depth =
+let private bestActionByBestScore depth =
 
     let chooseByBestScore trees =
         if
@@ -62,7 +62,7 @@ let private bestScoringNthChildMatchingCondition depth =
     nthChildren depth
     >> chooseByBestScore
 
-let private mostOpenSpaceNthChildMatchingCondition depth =
+let private bestActionByMostOpenSpaces depth =
 
     let chooseByMostOpenSpaces trees =
         if
@@ -81,7 +81,7 @@ let private mostOpenSpaceNthChildMatchingCondition depth =
     nthChildren depth
     >> chooseByMostOpenSpaces
 
-let private mostOpenSpaceWithHighestScoreNthChildMatchingCondition depth =
+let private bestActionByMostOpenSpaceWithHighestScore depth =
 
     let chooseByMostOpenSpacesWithHighestScore trees =
         if
@@ -103,7 +103,7 @@ let private mostOpenSpaceWithHighestScoreNthChildMatchingCondition depth =
     nthChildren depth
     >> chooseByMostOpenSpacesWithHighestScore
 
-let private bestExpectedScoringNthChildMatchingCondition depth =
+let private bestActionByExpectedScoreLocalSearch depth =
     
     let expectedScoreOf =
         Seq.map SearchTree.scoreOf
@@ -171,16 +171,16 @@ let private bestTrialOfPlayWithSearch search trials lookaheadDepth initialState 
     |> Seq.maxBy score
 
 let playTrialsWithRandomLocalSearch =
-    bestTrialOfPlayWithSearch randomNthChildMatchingCondition
+    bestTrialOfPlayWithSearch chooseActionByRandomImprovedScore
 
 let playTrialsWithMaximalLocalSearch =
-    bestTrialOfPlayWithSearch bestScoringNthChildMatchingCondition
+    bestTrialOfPlayWithSearch bestActionByBestScore
 
 let playTrialsWithMaximalBlanksLocalSearch =
-    bestTrialOfPlayWithSearch mostOpenSpaceNthChildMatchingCondition
+    bestTrialOfPlayWithSearch bestActionByMostOpenSpaces
 
 let playTrialsWithMaximalBlanksThenScoreLocalSearch =
-    bestTrialOfPlayWithSearch mostOpenSpaceWithHighestScoreNthChildMatchingCondition
+    bestTrialOfPlayWithSearch bestActionByMostOpenSpaceWithHighestScore
 
 let playTrialsWithMaximalScoreExpectationLocalSearch =
-    bestTrialOfPlayWithSearch bestExpectedScoringNthChildMatchingCondition
+    bestTrialOfPlayWithSearch bestActionByExpectedScoreLocalSearch
