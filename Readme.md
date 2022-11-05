@@ -28,11 +28,11 @@ I use a recursively-defined search tree (in SearchTree.fs) to expand from a give
 
 Local search algorithms are defined in LocalSearch.fs.
 I have implemented 5 different forms of local search, each of which is invoked with a keyword argument when running the program.
-- randomLocalSearch: Selects a random lookahead state to determine its next move.
-- maximalScoreLocalSearch: Selects the lookahead state with highest score. Breaks ties randomly.
-- maximalBlanksLocalSearch: Selects the lookahead state with the highest number of blank tiles. Breaks ties randomly.
-- maximalBlanksThenScoreLocalSearch: Selects the lookahead state with the highest number of blank tiles. Breaks ties by score, then randomly.
-- maximalExpectedScoreLocalSearch: Selects the lookahead state with the highest expected score, averaging all possibilities that result from each of the four moves. Breaks ties arbitrarily.
+- `randomLocalSearch`: Selects a random lookahead state to determine its next move.
+- `maximalScoreLocalSearch`: Selects the lookahead state with highest score. Breaks ties randomly.
+- `maximalBlanksLocalSearch`: Selects the lookahead state with the highest number of blank tiles. Breaks ties randomly.
+- `maximalBlanksThenScoreLocalSearch`: Selects the lookahead state with the highest number of blank tiles. Breaks ties by score, then randomly.
+- `maximalExpectedScoreLocalSearch`: Selects the lookahead state with the highest expected score, averaging all possibilities that result from each of the four moves. Breaks ties arbitrarily.
 
 I was surprised to find that methods 3 and 4 offer apparently no significant performance improvement over method 2.
 Method 5 does offer some improvement, but my program still has yet to win a game. Current high score is from method 5 at 16204.
