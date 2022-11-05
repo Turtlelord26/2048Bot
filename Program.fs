@@ -3,6 +3,14 @@ open LocalSearch
 open Test
 open Writer
 
+let usage = @"Usage: Run with one argument.
+test will run unit tests
+randomLocalSearch will play 2048 100 times using a random local search
+maximalScoreLocalSearch will play 2048 25 times using a local search that seeks maximum score
+maximalBlanksLocalSearch will play 2048 25 times using a local search that seeks maximum number of blank spaces
+maximalBlanksThenScoreLocalSearch will play 2048 25 times using a local search that seeks maximum number of blank spaces and score, in that order
+maximalExpectedScoreLocalSearch will play 2048 25 times using a local search that seeks maximum expected score of each action"
+
 let tests () =
     testBasicShifts
     testOrderMatters
@@ -18,34 +26,29 @@ let tests () =
 [<EntryPoint>]
 let main args =
     match args with
-    | [||] ->
+    | [|"test"|] ->
         tests ()
-        0
     | [|"randomLocalSearch"|] ->
         initialState
         |> playTrialsWithRandomLocalSearch 100 2
         ||> writeResult
-        0
-    | [|"maximalLocalSearch"|] ->
+    | [|"maximalScoreLocalSearch"|] ->
         initialState
         |> playTrialsWithMaximalLocalSearch 25 2
         ||> writeResult
-        0
     | [|"maximalBlanksLocalSearch"|] ->
         initialState
         |> playTrialsWithMaximalBlanksLocalSearch 25 2
         ||> writeResult
-        0
     | [|"maximalBlanksThenScoreLocalSearch"|] ->
         initialState
         |> playTrialsWithMaximalBlanksThenScoreLocalSearch 25 2
         ||> writeResult
-        0
     | [|"maximalExpectedScoreLocalSearch"|] ->
         initialState
         |> playTrialsWithMaximalScoreExpectationLocalSearch 25 2
         ||> writeResult
-        0
     | _ ->
-        "Unrecognized Input" |> printfn "%s"
-        1
+        usage
+        |> writeStringToConsole
+    0

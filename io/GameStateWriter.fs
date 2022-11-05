@@ -9,6 +9,8 @@ open Game
 open Search
 open StringUtils
 
+let writeStringToConsole = printfn "%s"
+
 let writeSolutions path solutions =
     try
         File.WriteAllText(path, solutions)
