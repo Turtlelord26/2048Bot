@@ -10,8 +10,12 @@ The bidirectional slicing capability of Array2D was just too convenient not to u
 
 main in Program.fs is the entry point.
 
-The game engine is defined between the GameState and Tile files. Tile represents a single space on the 2048 board, while GameState is a 2DArray of Tiles and a score.
-Tile contains functions to shift a one-dimensional list of tiles, while GameState contains the logic to invoke this shift in different ways to effect Left, Right, Up, or Down moves. ValidatedGameState further augments state information by wrapping a GameState with a status value that indicates whether the game is in a victory or loss state.
+The game engine is defined in the gameplay subdirectory.
+- Tile is a sum type that represents a single space on the 2048 board, either containing a value or being blank.
+- Board contains low-level functions that shift lists of Tiles and apply other state changes to the underlying Tile Array2D.
+- GameState is a data structure containing a 2DArray of Tiles and a score, and contains higher-level shift logic to effect moves to the Left, Right, Up, or Down, along with other state-modifying functions.
+- Moves combines GameState shifts with a random Tile insertion.
+- ValidatedGameState further augments state information by wrapping a GameState with a status value that indicates whether the game is in a victory or loss state.
 
 The tests subdirectory contains a number of shift tests that compare an expected state with the result of shifting an initial state.
 
