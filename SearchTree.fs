@@ -27,22 +27,19 @@ type SearchTree =
         state: GameState
         * action: Action option
         * parent: SearchTree
-        * leftChildren: SearchTree seq
-        * rightChildren: SearchTree seq
-        * upChildren: SearchTree seq
-        * downChildren: SearchTree seq
+        * children: SearchTree seq
     with
 
     static member scoreOf searchTree =
         match searchTree with
-        | Tree (state, _, _, _, _, _, _) ->
+        | Tree (state, _, _, _) ->
             GameState.scoreOf state
         | Empty ->
             0
     
     static member countBlanks searchTree =
         match searchTree with
-        | Tree (state, _, _, _, _, _, _) ->
+        | Tree (state, _, _, _) ->
             state
             |> GameState.boardOf
             |> Board.getTiles
@@ -53,60 +50,61 @@ type SearchTree =
 
     static member actionOf tree =
         match tree with
-        | Tree (_, action, _, _, _, _, _) ->
+        | Tree (_, action, _, _) ->
             action
         | Empty ->
             None
 
     static member toSearchTreeRoot state =
-        Tree (state, None, Empty, Seq.empty, Seq.empty, Seq.empty, Seq.empty)
+        Tree (state, None, Empty, Seq.empty)
     
     static member private mapStateToMany mapper tree =
         match tree with
-        | Tree (state, action, parent, leftChildren, rightChildren, upChildren, downChildren) ->
+        | Tree (state, action, parent, children) ->
             let returnToTrees =
-                Seq.map (fun newState -> Tree (newState, action, parent, leftChildren, rightChildren, upChildren, downChildren))
+                Seq.map (fun newState -> Tree (newState, action, parent, children))
             state
             |> mapper
             |> returnToTrees
         | Empty ->
             Seq.empty
     
-    static member private expandNode additionalProcessing tree =
+    static member private expandNode insertTile tree =
         
         let shift action parent =
             match parent, action with
-            | Tree (state, _, _, _, _, _, _), Left ->
-                Tree (state |> GameState.shiftLeft, Some Left, parent, Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
-            | Tree (state, _, _, _, _, _, _), Right ->
-                Tree (state |> GameState.shiftRight, Some Right, parent,  Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
-            | Tree (state, _, _, _, _, _, _), Up ->
-                Tree (state |> GameState.shiftUp, Some Up, parent,  Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
-            | Tree (state, _, _, _, _, _, _), Down ->
-                Tree (state |> GameState.shiftDown, Some Down, parent,  Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty)
+            | Tree (state, _, _, _), Left ->
+                Tree (state |> GameState.shiftLeft, Some Left, parent, Seq.empty)
+            | Tree (state, _, _, _), Right ->
+                Tree (state |> GameState.shiftRight, Some Right, parent, Seq.empty)
+            | Tree (state, _, _, _), Up ->
+                Tree (state |> GameState.shiftUp, Some Up, parent, Seq.empty)
+            | Tree (state, _, _, _), Down ->
+                Tree (state |> GameState.shiftDown, Some Down, parent, Seq.empty)
             | _, _ ->
                 Empty
         
-        let shiftExpand action =
+        let shiftAndInsert action: SearchTree -> SearchTree seq =
             shift action
-            >> additionalProcessing
+            >> insertTile
 
         match tree with
-        | (Tree (state, action, parent, _, _, _, _)) ->
+        | (Tree (state, action, parent, _)) ->
             Tree (
                 state,
                 action,
                 parent,
-                tree |> shiftExpand Left,
-                tree |> shiftExpand Right,
-                tree |> shiftExpand Up,
-                tree |> shiftExpand Down
+                seq {tree |> shiftAndInsert Left;
+                     tree |> shiftAndInsert Right;
+                     tree |> shiftAndInsert Up;
+                     tree |> shiftAndInsert Down}
+                |> Seq.concat
                 )
         | Empty ->
             Empty
     
     static member expandNodeWithoutInsertion =
-        SearchTree.expandNode (fun x -> seq {x})
+        SearchTree.expandNode Seq.singleton
     
     static member expandNodeWithExhaustiveInsertion =
 
@@ -130,9 +128,8 @@ type SearchTree =
 
     static member getChildren tree =
         match tree with
-        | Tree (_, _, _, left, right, up, down) ->
-            seq {left; right; up; down}
-            |> Seq.concat
+        | Tree (_, _, _, children) ->
+            children
         | Empty ->
             Seq.empty
 
@@ -140,10 +137,10 @@ type SearchTree =
         
         let rec climb path tree =
             match tree with
-            | Tree (_, None, _, _, _, _, _)
+            | Tree (_, None, _, _)
             | Empty ->
                 path
-            | Tree (_, _, parent, _, _, _, _) ->
+            | Tree (_, _, parent, _) ->
                 climb (parent :: path) parent
         
         climb [tree] tree
