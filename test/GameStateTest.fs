@@ -5,7 +5,6 @@ open GameStateTestUtils
 open TestUtils
 open TestStates
 open TestStateExpectations
-open Reader
 open Writer
 
 let testLeftShift  =
@@ -49,14 +48,3 @@ let testMilestone1SampleFirstMove =
     
 let testMilestone1SampleSecondMove =
     testShift "TestMilestone1Sample2nd: " (GameState.shiftLeft >> GameState.shiftDown) milestone1SampleInitial milestone1SampleSecondExpected
-    
-let testRead visualize =
-    match 
-        "test/unitTestInput.txt"
-        |> readGameStates
-        |> Result.map Seq.head
-    with
-    | Ok state ->
-        $"Test Input Reading: {state = milestone1SampleInitial |> passfail}" |> printfn "%s"
-        if visualize then state |> ValidatedGameState.wrap |> printGameState |> printfn "%s"
-    | Error error -> error |> printfn "%s"

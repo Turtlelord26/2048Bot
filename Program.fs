@@ -21,7 +21,6 @@ let tests () =
     testUnlikePacked
     testMilestone1SampleFirstMove
     testMilestone1SampleSecondMove
-    testRead false
 
 [<EntryPoint>]
 let main args =
