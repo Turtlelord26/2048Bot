@@ -16,10 +16,12 @@
     <Compile Include="gameplay/Board.fs" />
     <Compile Include="gameplay/GameState.fs" />
     <Compile Include="gameplay/ValidatedGameState.fs" />
-    <Compile Include="SearchTree.fs" />
     <Compile Include="gameplay/Moves.fs" />
     <Compile Include="gameplay/Initialization.fs" />
-    <Compile Include="LocalSearch.fs" />
+    <Compile Include="SearchTree.fs" />
+    <Compile Include="localSearch/LocalSearchActions.fs" />
+    <Compile Include="localSearch/LocalSearchUtils.fs" />
+    <Compile Include="localSearch/LocalSearch.fs" />
     <Compile Include="io/GameStateWriter.fs" />
     <Compile Include="test/TestUtils.fs" />
     <Compile Include="test/GameStateTestStates.fs" />

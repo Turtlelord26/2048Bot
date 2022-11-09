@@ -29,23 +29,23 @@ let main args =
         tests ()
     | [|"randomLocalSearch"|] ->
         initialState
-        |> playTrialsWithRandomLocalSearch 100 2
+        |> playTrialsWithRandomLocalSearch 2 100
         ||> writeResult
     | [|"maximalScoreLocalSearch"|] ->
         initialState
-        |> playTrialsWithMaximalLocalSearch 25 2
+        |> playTrialsWithMaximalLocalSearch 2 25
         ||> writeResult
     | [|"maximalBlanksLocalSearch"|] ->
         initialState
-        |> playTrialsWithMaximalBlanksLocalSearch 25 2
+        |> playTrialsWithMaximalBlanksLocalSearch 2 25
         ||> writeResult
     | [|"maximalBlanksThenScoreLocalSearch"|] ->
         initialState
-        |> playTrialsWithMaximalBlanksThenScoreLocalSearch 25 2
+        |> playTrialsWithMaximalBlanksThenScoreLocalSearch 2 25
         ||> writeResult
     | [|"maximalExpectedScoreLocalSearch"|] ->
         initialState
-        |> playTrialsWithMaximalScoreExpectationLocalSearch 25 2
+        |> playTrialsWithMaximalScoreExpectationLocalSearch 2 25
         ||> writeResult
     | _ ->
         usage
