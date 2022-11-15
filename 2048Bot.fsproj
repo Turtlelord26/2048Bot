@@ -20,6 +20,7 @@
     <Compile Include="gameplay/Initialization.fs" />
     <Compile Include="SearchTree.fs" />
     <Compile Include="localSearch/LocalSearchActions.fs" />
+    <Compile Include="localSearch/LocalSearchScoring.fs" />
     <Compile Include="localSearch/LocalSearchUtils.fs" />
     <Compile Include="localSearch/LocalSearch.fs" />
     <Compile Include="io/GameStateWriter.fs" />
