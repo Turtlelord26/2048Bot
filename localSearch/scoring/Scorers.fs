@@ -63,6 +63,7 @@ let scoreByUniformity =
     let tileCounts = 
         GameState.boardOf
         >> Board.getTiles
+        >> Seq.filter (not << Tile.isBlank)
         >> Seq.countBy Tile.score
         >> Seq.map snd
     
