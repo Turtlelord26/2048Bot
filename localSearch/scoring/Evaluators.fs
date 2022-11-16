@@ -35,6 +35,9 @@ let evaluateWithMaxScore actionTrees =
 let evaluateWithMaxBlanks actionTrees =
     evaluateWithScorer scoreByBlanks Seq.max actionTrees
 
+let evaluateWithExpectedBlanks actionTrees =
+    evaluateWithScorer scoreByBlanks Seq.average actionTrees
+
 let evaluateWithExpectedScore actionTrees =
     evaluateWithScorer scoreByScore Seq.average actionTrees
 

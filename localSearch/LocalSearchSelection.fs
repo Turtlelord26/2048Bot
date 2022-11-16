@@ -45,3 +45,14 @@ let chooseByBestScoreExpectation actionTrees =
     
     actionTrees
     |> chooseByEvaluator evaluator
+
+let chooseByEUMR actionTrees =
+
+    let evaluator =
+        evaluateWithExpectedBlanks
+        >> evaluateWithExpectedUniformity
+        >> evaluateWithExpectedMonotonicity
+        >> randomElementIfNonempty
+    
+    actionTrees
+    |> chooseByEvaluator evaluator
