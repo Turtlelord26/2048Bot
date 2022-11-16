@@ -1,8 +1,8 @@
-module LocalSearchActions
+module LocalSearch.Actions
 
 open Game
 open Moves
-open Search
+open SearchTree
 
 let returnFromTerminalState vstate actions =
     vstate, actions |> Seq.rev

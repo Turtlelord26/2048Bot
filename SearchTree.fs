@@ -1,4 +1,4 @@
-module Search
+module SearchTree
 
 open Game
 open StringUtils
@@ -30,24 +30,13 @@ type SearchTree =
         * children: SearchTree seq
     with
 
-    static member scoreOf searchTree =
+    static member mapState mapper ifEmpty searchTree =
         match searchTree with
         | Tree (state, _, _, _) ->
-            GameState.scoreOf state
+            mapper state
         | Empty ->
-            0
-    
-    static member countBlanks searchTree =
-        match searchTree with
-        | Tree (state, _, _, _) ->
-            state
-            |> GameState.boardOf
-            |> Board.getTiles
-            |> Seq.filter Tile.isBlank
-            |> Seq.length
-        | Empty ->
-            0
-
+            ifEmpty
+        
     static member actionOf tree =
         match tree with
         | Tree (_, action, _, _) ->
@@ -147,4 +136,4 @@ type SearchTree =
     
     static member getRootCauseAction =
         SearchTree.pathToRoot
-        >> Seq.tryPick SearchTree.actionOf
+        >> Seq.pick SearchTree.actionOf

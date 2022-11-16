@@ -1,6 +1,6 @@
 ﻿open Initialization
-open LocalSearch
-open LocalSearchScoring
+open LocalSearch.Play
+open LocalSearch.Selection
 open Test
 open Writer
 
@@ -27,21 +27,22 @@ let main args =
     match args with
     | [|"test"|] ->
         tests ()
+    //TODO: figure out how to hack random search back in.
     | [|"maximalScoreLocalSearch"|] ->
         initialState
-        |> playTrials 2 chooseByBestScore 25
+        |> playTrials 2 chooseByBestScore 1
         ||> writeResult
     | [|"maximalBlanksLocalSearch"|] ->
         initialState
-        |> playTrials 2 chooseByMostOpenSpaces 25
+        |> playTrials 2 chooseByMostOpenSpaces 1
         ||> writeResult
     | [|"maximalBlanksThenScoreLocalSearch"|] ->
         initialState
-        |> playTrials 2 chooseByMostOpenSpacesWithHighestScore 25
+        |> playTrials 2 chooseByMostOpenSpacesWithHighestScore 1
         ||> writeResult
     | [|"maximalExpectedScoreLocalSearch"|] ->
         initialState
-        |> playTrials 2 chooseByBestScoreExpectation 25
+        |> playTrials 2 chooseByBestScoreExpectation 1
         ||> writeResult
     | _ ->
         usage

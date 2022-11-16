@@ -6,7 +6,7 @@ open System.Security
 
 open Array2DUtils
 open Game
-open Search
+open SearchTree
 open StringUtils
 
 let writeStringToConsole = printfn "%s"

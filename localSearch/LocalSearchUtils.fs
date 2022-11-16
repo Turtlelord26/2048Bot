@@ -1,35 +1,6 @@
-module LocalSearchUtils
+module LocalSearch.Search
 
-open Game
-open LocalSearchActions
-open Search
-
-let private playWithSearch searchAndExecuteNextAction onVictory onDefeat =
-
-    let rec randomLocalSearchIteration actionsTaken vstate =
-        match vstate |> ValidatedGameState.statusOf with
-        | Valid ->
-            searchAndExecuteNextAction randomLocalSearchIteration vstate actionsTaken
-        | Victory ->
-            onVictory vstate actionsTaken
-        | Defeat ->
-            onDefeat vstate actionsTaken
-    
-    randomLocalSearchIteration []
-
-let bestTrialOfPlayWithSearch searchMethod returnFromTerminalState trials initialState =
-
-    let iterateLocalSearch = searchAndExecuteNextAction searchMethod
-
-    let localSearch = playWithSearch iterateLocalSearch returnFromTerminalState returnFromTerminalState
-
-    let score =
-        fst
-        >> ValidatedGameState.stateOf
-        >> GameState.scoreOf
-
-    seq {for _ in 1..trials do localSearch initialState}
-    |> Seq.maxBy score
+open SearchTree
 
 let nthChildren depth =
 

@@ -28,6 +28,10 @@ let getTiles =
     getRows
     >> Seq.concat
 
+let getBlankTiles =
+    getTiles
+    >> Seq.filter Tile.isBlank
+
 let getIndexedBlankTiles =
 
     let indexTiles row col tile =
