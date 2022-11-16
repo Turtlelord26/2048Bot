@@ -15,7 +15,7 @@ let private evaluateWithScorer scoreTree selectionFunction actionTrees =
     
     let bestActions actionScores =
         actionScores
-        |> Seq.filter (snd >> (fun score -> score = bestScore actionScores))
+        |> Seq.filter ((=) (bestScore actionScores) << snd)
         |> Seq.map fst
     
     let actionInBestActions action =
