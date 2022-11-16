@@ -60,35 +60,27 @@ type SearchTree =
     
     static member private expandNode insertTile tree =
         
-        let shift action parent =
-            match parent, action with
-            | Tree (state, _, _, _), Left ->
-                Tree (state |> GameState.shiftLeft, Some Left, parent, Seq.empty)
-            | Tree (state, _, _, _), Right ->
-                Tree (state |> GameState.shiftRight, Some Right, parent, Seq.empty)
-            | Tree (state, _, _, _), Up ->
-                Tree (state |> GameState.shiftUp, Some Up, parent, Seq.empty)
-            | Tree (state, _, _, _), Down ->
-                Tree (state |> GameState.shiftDown, Some Down, parent, Seq.empty)
-            | _, _ ->
-                Empty
+        let toChildTree action parent child =
+            Tree (child, Some action, parent, Seq.empty)
+
+        let expandLegalMoves parentTree parentState =
+            seq {GameState.shiftLeft parentState |> toChildTree Left parentTree;
+                 GameState.shiftRight parentState |> toChildTree Right parentTree;
+                 GameState.shiftUp parentState |> toChildTree Up parentTree;
+                 GameState.shiftDown parentState |> toChildTree Down parentTree;}
+            |> Seq.filter (SearchTree.mapState ((<>) parentState) false)
         
-        let shiftAndInsert action: SearchTree -> SearchTree seq =
-            shift action
-            >> insertTile
+        let children parentTree =
+            expandLegalMoves parentTree
+            >> Seq.map insertTile
+            >> Seq.concat
 
         match tree with
-        | (Tree (state, action, parent, _)) ->
-            Tree (
-                state,
-                action,
-                parent,
-                seq {tree |> shiftAndInsert Left;
-                     tree |> shiftAndInsert Right;
-                     tree |> shiftAndInsert Up;
-                     tree |> shiftAndInsert Down}
-                |> Seq.concat
-                )
+        | (Tree (state = state; action = action; parent = parent; children = _;)) ->
+            Tree (state,
+                  action,
+                  parent,
+                  children tree state)
         | Empty ->
             Empty
     
