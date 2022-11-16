@@ -30,7 +30,8 @@ let scoreByMonotonicity =
     let rowsAndCols state = 
         (state |> rows, state |> cols)
     
-    let comparators = ((<=), (>=))
+    let comparators = 
+        List.allPairs [(<=); (>=)] [(>=); (<=)]
     
     let scoreLinearMonotonicity comp =
         Seq.pairwise
@@ -41,20 +42,16 @@ let scoreByMonotonicity =
         Seq.map (scoreLinearMonotonicity comp)
         >> Seq.sum
     
-    let scoreCornerMonotonicity rows rowComp cols colComp =
+    let scoreCornerMonotonicity rows cols (rowComp, colComp) =
         scoreAllLinearMonotonicity rowComp rows
         + scoreAllLinearMonotonicity colComp cols
 
-    let scoreMaxCornerMonotonicity (comp1, comp2) (rows, cols) =
-        seq {scoreCornerMonotonicity rows comp1 cols comp1;
-             scoreCornerMonotonicity rows comp1 cols comp2;
-             scoreCornerMonotonicity rows comp2 cols comp1;
-             scoreCornerMonotonicity rows comp2 cols comp2}
-        |> Seq.max
+    let scoreMaxCornerMonotonicity (rows, cols) =
+        Seq.map (scoreCornerMonotonicity rows cols)
+        >> Seq.max
     
-    let scoreStateMonotonicity =
-        rowsAndCols
-        >> scoreMaxCornerMonotonicity comparators 
+    let scoreStateMonotonicity state =
+        scoreMaxCornerMonotonicity (rowsAndCols state) comparators 
     
     SearchTree.mapState scoreStateMonotonicity 0
     >> float
