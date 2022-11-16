@@ -1,4 +1,6 @@
-namespace Game
+namespace ValidatedGameState
+
+open Game
 
 type Status =
     | Valid

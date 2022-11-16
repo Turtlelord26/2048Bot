@@ -6,25 +6,28 @@ open TupleUtils
 let private evaluateWithScorer scoreTree selectionFunction actionTrees =
     
     let actionScores =
-        actionTrees
-        |> Seq.map (Seq.map scoreTree |> mapSnd)
-        |> Seq.map (selectionFunction |> mapSnd)
+        Seq.map (Seq.map scoreTree |> mapSnd)
+        >> Seq.map (selectionFunction |> mapSnd)
     
     let bestScore =
-        actionScores
-        |> Seq.map snd
-        |> Seq.max
+        Seq.map snd
+        >> Seq.max
     
-    let bestActions =
+    let bestActions actionScores =
         actionScores
-        |> Seq.filter (snd >> (fun score -> score = bestScore))
+        |> Seq.filter (snd >> (fun score -> score = bestScore actionScores))
         |> Seq.map fst
     
     let actionInBestActions action =
-        Seq.contains action bestActions
+        Seq.contains action (bestActions (actionScores actionTrees))
     
-    actionTrees
-    |> Seq.filter (fst >> actionInBestActions)
+    if 
+        actionTrees |> Seq.isEmpty
+    then
+        Seq.empty
+    else
+        actionTrees
+        |> Seq.filter (fst >> actionInBestActions)
 
 let evaluateWithMaxScore actionTrees = 
     evaluateWithScorer scoreByScore Seq.max actionTrees

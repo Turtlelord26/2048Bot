@@ -1,33 +1,35 @@
 module LocalSearch.Actions
 
-open Game
 open Moves
 open SearchTree
 
-let returnFromTerminalState vstate actions =
-    vstate, actions |> Seq.rev
+let returnFromTerminalState state actions =
+    state, actions |> Seq.rev
 
-let private searchNextActionFromValidState determineAction recurSearch vstate actions =
-    match vstate |> determineAction with
-    | Some Left ->
-        vstate
-        |> ValidatedGameState.map moveLeft
-        |> recurSearch (Left :: actions)
-    | Some Right ->
-        vstate
-        |> ValidatedGameState.map moveRight
-        |> recurSearch (Right :: actions)
-    | Some Up ->
-        vstate
-        |> ValidatedGameState.map moveUp
-        |> recurSearch (Up :: actions)
-    | Some Down ->
-        vstate
-        |> ValidatedGameState.map moveDown
-        |> recurSearch (Down :: actions)
-    | None ->
-        returnFromTerminalState vstate actions
+let searchActionsUntilTermination determineAction returnFromTerminalState =
 
-let searchAndExecuteNextAction search =
-        ValidatedGameState.stateOf >> search
-        |> searchNextActionFromValidState
+    let rec recurSearch actions state =
+        match
+            state
+            |> determineAction
+        with
+        | Some Left ->
+            state
+            |> moveLeft
+            |> recurSearch (Left :: actions)
+        | Some Right ->
+            state
+            |> moveRight
+            |> recurSearch (Right :: actions)
+        | Some Up ->
+            state
+            |> moveUp
+            |> recurSearch (Up :: actions)
+        | Some Down ->
+            state
+            |> moveDown
+            |> recurSearch (Down :: actions)
+        | None ->
+            returnFromTerminalState state actions
+    
+    recurSearch []

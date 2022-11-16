@@ -23,7 +23,7 @@ let writeSolutions path solutions =
     | :? NotSupportedException as e -> e.Message |> printfn "%s"
     | :? SecurityException as e -> e.Message |> printfn "%s"
 
-let printGameState (VState (State (board, score), status)) =
+let printGameState (State (board, score)) =
 
     let printTile tile =
         match tile |> Tile.score with
@@ -60,8 +60,7 @@ let printGameState (VState (State (board, score), status)) =
     [sprintf "%s" spacer;
         printBoard board;
         sprintf "%s" spacer;
-        score |> printScore |> sprintf "%s";
-        status |> Status.toString |> sprintf "%s"]
+        score |> printScore |> sprintf "%s";]
     |> List.reduce concatWithNewline
 
 let writeResult vstate actions =
