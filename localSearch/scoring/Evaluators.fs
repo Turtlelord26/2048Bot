@@ -38,6 +38,8 @@ let evaluateWithMaxBlanks actionTrees =
 let evaluateWithExpectedScore actionTrees =
     evaluateWithScorer scoreByScore Seq.average actionTrees
 
-//TODO: evaluateByMonotonicity
+let evaluateWithExpectedMonotonicity actionTrees =
+    evaluateWithScorer scoreByMonotonicity Seq.average actionTrees
 
-//TODO: evaluateByUniformity
+let evaluateWithExpectedUniformity actionTrees =
+    evaluateWithScorer scoreByUniformity Seq.average actionTrees
