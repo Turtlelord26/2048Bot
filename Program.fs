@@ -44,6 +44,10 @@ let main args =
         initialState
         |> playTrials 2 chooseByBestScoreExpectation 1
         ||> writeResult
+    | [|"EUMR"|] ->
+        initialState
+        |> playTrials 2 chooseByEUMR 1
+        ||> writeResult
     | _ ->
         usage
         |> writeStringToConsole

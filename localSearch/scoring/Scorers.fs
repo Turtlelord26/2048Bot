@@ -22,10 +22,12 @@ let scoreByMonotonicity =
     let rows =
         GameState.boardOf
         >> Board.getRows
+        >> List.map (Array.map Tile.score)
 
     let cols =
         GameState.boardOf
         >> Board.getCols
+        >> List.map (Array.map Tile.score)
     
     let rowsAndCols state = 
         (state |> rows, state |> cols)
@@ -61,7 +63,7 @@ let scoreByUniformity =
     let tileCounts = 
         GameState.boardOf
         >> Board.getTiles
-        >> Seq.countBy id
+        >> Seq.countBy Tile.score
         >> Seq.map snd
     
     let cubeCount =
