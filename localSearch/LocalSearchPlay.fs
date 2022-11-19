@@ -8,26 +8,9 @@ let private bestTrialOfPlayWithSearch searchFunction returnFromTerminalState num
 
     let localSearch = searchActionsUntilTermination searchFunction returnFromTerminalState
 
-    let higherScoringState (state1, actions1) (state2, actions2) =
-        if
-            state1 |> GameState.scoreOf
-            >= (state2 |> GameState.scoreOf)
-        then (state1, actions1)
-        else (state2, actions2)
-
-    let rec runTrials count highestScoringState =
-        match count with
-        | i when i > 0 ->
-            initialState
-            |> localSearch
-            |> higherScoringState highestScoringState
-            |> runTrials (count - 1)
-        | _ ->
-            highestScoringState
-    
-    initialState
-    |> localSearch
-    |> runTrials (numTrials - 1)
+    seq {1..numTrials}
+    |> Seq.map (fun _ -> localSearch initialState)
+    |> Seq.maxBy (fst >> GameState.scoreOf)
 
 let playTrials tileInsertionOptions depth scoringFunction trials initialState =
 
