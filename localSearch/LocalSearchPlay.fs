@@ -4,21 +4,30 @@ open Game
 open LocalSearch.Actions
 open LocalSearch.Search
 
-let private playWithSearch localSearch onEndOfGame: GameState -> GameState * seq<SearchTree.Action> =
-    localSearch onEndOfGame
+let private bestTrialOfPlayWithSearch searchFunction returnFromTerminalState numTrials initialState =
 
-let private bestTrialOfPlayWithSearch searchFunction returnFromTerminalState trials initialState =
+    let localSearch = searchActionsUntilTermination searchFunction returnFromTerminalState
 
-    let recurringSearch = searchActionsUntilTermination searchFunction
+    let higherScoringState (state1, actions1) (state2, actions2) =
+        if
+            state1 |> GameState.scoreOf
+            >= (state2 |> GameState.scoreOf)
+        then (state1, actions1)
+        else (state2, actions2)
 
-    let localSearch = playWithSearch recurringSearch returnFromTerminalState
-
-    let score =
-        fst
-        >> GameState.scoreOf
-
-    seq {for _ in 1..trials do localSearch initialState}
-    |> Seq.maxBy score
+    let rec runTrials count highestScoringState =
+        match count with
+        | i when i > 0 ->
+            initialState
+            |> localSearch
+            |> higherScoringState highestScoringState
+            |> runTrials (count - 1)
+        | _ ->
+            highestScoringState
+    
+    initialState
+    |> localSearch
+    |> runTrials (numTrials - 1)
 
 let playTrials tileInsertionOptions depth scoringFunction trials initialState =
 
