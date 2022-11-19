@@ -1,6 +1,7 @@
 ﻿open Initialization
 open LocalSearch.Play
 open LocalSearch.Selection
+open Moves
 open Test
 open Writer
 
@@ -24,29 +25,34 @@ let tests () =
 
 [<EntryPoint>]
 let main args =
+
+    let lookaheads = 2
+
+    let play = playTrials tileInsertionOptions lookaheads
+
     match args with
     | [|"test"|] ->
         tests ()
     //TODO: figure out how to hack random search back in.
     | [|"maximalScoreLocalSearch"|] ->
         initialState
-        |> playTrials 2 chooseByBestScore 1
+        |> play chooseByBestScore 1
         ||> writeResult
     | [|"maximalBlanksLocalSearch"|] ->
         initialState
-        |> playTrials 2 chooseByMostOpenSpaces 1
+        |> play chooseByMostOpenSpaces 1
         ||> writeResult
     | [|"maximalBlanksThenScoreLocalSearch"|] ->
         initialState
-        |> playTrials 2 chooseByMostOpenSpacesWithHighestScore 1
+        |> play chooseByMostOpenSpacesWithHighestScore 1
         ||> writeResult
     | [|"maximalExpectedScoreLocalSearch"|] ->
         initialState
-        |> playTrials 2 chooseByBestScoreExpectation 1
+        |> play chooseByBestScoreExpectation 1
         ||> writeResult
     | [|"EUMR"|] ->
         initialState
-        |> playTrials 2 chooseByEUMR 1
+        |> play chooseByEUMR 1
         ||> writeResult
     | _ ->
         usage

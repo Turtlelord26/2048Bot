@@ -20,10 +20,10 @@ let private bestTrialOfPlayWithSearch searchFunction returnFromTerminalState tri
     seq {for _ in 1..trials do localSearch initialState}
     |> Seq.maxBy score
 
-let playTrials depth scoringFunction trials initialState =
+let playTrials tileInsertionOptions depth scoringFunction trials initialState =
 
     let searchFunction =
-        nthChildren depth
+        nthChildren tileInsertionOptions depth
         >> scoringFunction
     
     bestTrialOfPlayWithSearch searchFunction returnFromTerminalState trials initialState

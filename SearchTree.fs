@@ -87,13 +87,10 @@ type SearchTree =
     static member expandNodeWithoutInsertion =
         SearchTree.expandNode Seq.singleton
     
-    static member expandNodeWithExhaustiveInsertion =
+    static member expandNodeWithExhaustiveInsertion possibleTiles =
 
         let addTileAtIndex state (row, col) tile =
             seq {state |> GameState.assignTile tile row col; }
-        
-        let possibleTiles =
-            seq {Exponent 1; Exponent 2}
         
         let expandInsertionPossibilities state =
             state

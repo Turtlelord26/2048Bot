@@ -2,12 +2,12 @@ module LocalSearch.Search
 
 open SearchTree
 
-let nthChildren depth =
+let nthChildren tileInsertionOptions depth =
 
     let rec searchToDepth depths =
         match depths with
         | i when i > 1 ->
-            Seq.map SearchTree.expandNodeWithExhaustiveInsertion
+            Seq.map (SearchTree.expandNodeWithExhaustiveInsertion tileInsertionOptions)
             >> Seq.collect SearchTree.getChildren
             >> searchToDepth (depths - 1)
         | 1 ->
