@@ -21,13 +21,8 @@ let private evaluateWithScorer scoreTree selectionFunction actionTrees =
     let actionInBestActions action =
         Seq.contains action (bestActions (actionScores actionTrees))
     
-    if 
-        actionTrees |> Seq.isEmpty
-    then
-        Seq.empty
-    else
-        actionTrees
-        |> Seq.filter (fst >> actionInBestActions)
+    actionTrees
+    |> Seq.filter (fst >> actionInBestActions)
 
 let evaluateWithMaxScore actionTrees = 
     evaluateWithScorer scoreByScore Seq.max actionTrees
