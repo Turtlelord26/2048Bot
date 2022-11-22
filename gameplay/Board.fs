@@ -32,7 +32,7 @@ let getBlankTiles =
     getTiles
     >> Seq.filter Tile.isBlank
 
-let getIndexedBlankTiles =
+let getBlankTileIndices =
 
     let indexTiles row col tile =
         (tile, (row, col))
@@ -44,6 +44,7 @@ let getIndexedBlankTiles =
     Array2D.mapi indexTiles
     >> sequenceIndexedTiles
     >> Seq.filter (fst >> Tile.isBlank)
+    >> Seq.map snd
 
 let writeTileToBoard tile row col (tiles: Tile[,]) =
         tiles[row, col] <- tile
@@ -52,8 +53,7 @@ let writeTileToBoard tile row col (tiles: Tile[,]) =
 let addRandomTileToRandomBlank options =
 
     let indicesOfRandomBlank =
-        getIndexedBlankTiles
-        >> Seq.map snd
+        getBlankTileIndices
         >> randomElementIfNonempty
     
     let addTileToRandomBlankIfAny tile board =

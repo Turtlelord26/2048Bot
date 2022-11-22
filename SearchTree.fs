@@ -95,8 +95,7 @@ type SearchTree =
         let expandInsertionPossibilities state =
             state
             |> GameState.boardOf
-            |> Board.getIndexedBlankTiles
-            |> Seq.map snd
+            |> Board.getBlankTileIndices
             |> Seq.map (addTileAtIndex state)
             |> Seq.allPairs possibleTiles
             |> Seq.map (fun (tile, assignment) -> tile |> assignment)
