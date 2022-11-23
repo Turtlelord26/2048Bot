@@ -8,8 +8,8 @@ let private bestTrialOfPlayWithSearch searchFunction returnFromTerminalState num
 
     let localSearch = searchActionsUntilTermination searchFunction returnFromTerminalState
 
-    seq {1..numTrials}
-    |> Seq.map (fun _ -> localSearch initialState)
+    localSearch initialState
+    |> Seq.replicate numTrials
     |> Seq.maxBy (fst >> GameState.scoreOf)
 
 let playTrials tileInsertionOptions depth scoringFunction trials initialState =
