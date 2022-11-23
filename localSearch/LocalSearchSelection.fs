@@ -9,6 +9,11 @@ let private chooseByEvaluator evaluator =
     >> evaluator
     >> Option.map fst
 
+let chooseByRandomImprovement actionTrees =
+    actionTrees
+    |> Seq.groupBy SearchTree.getRootCauseAction
+    |> evaluateWithRandomImprovedState
+
 let chooseByBestScore actionTrees =
 
     let evaluator =

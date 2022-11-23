@@ -33,7 +33,10 @@ let main args =
     match args with
     | [|"test"|] ->
         tests ()
-    //TODO: figure out how to hack random search back in.
+    | [|"randomLocalSearch"|] ->
+        initialState
+        |> play chooseByRandomImprovement 1
+        ||> writeResult
     | [|"maximalScoreLocalSearch"|] ->
         initialState
         |> play chooseByBestScore 1

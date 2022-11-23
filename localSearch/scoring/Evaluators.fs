@@ -1,6 +1,8 @@
 module LocalSearch.Scoring.Evaluators
 
 open LocalSearch.Scoring.Scorers
+open Game
+open SearchTree
 open TupleUtils
 
 let private evaluateWithScorer scoreTree selectionFunction actionTrees =
@@ -23,6 +25,37 @@ let private evaluateWithScorer scoreTree selectionFunction actionTrees =
     
     actionTrees
     |> Seq.filter (fst >> actionInBestActions)
+
+let evaluateWithRandomImprovedState actionTrees =
+
+    let baseScore =
+        actionTrees
+        |> Seq.tryHead
+        |> Option.map snd
+        |> Option.map Seq.head
+        |> Option.map SearchTree.rootOf
+        |> Option.map (SearchTree.mapState GameState.scoreOf 0)
+    
+    let scoreIncreased baseScore tree =
+        match baseScore with
+        | Some i ->
+            tree |> SearchTree.mapState GameState.scoreOf 0 > i
+            |> Some
+        | None -> None
+    
+    let countScoresIncreased =
+        Seq.choose (scoreIncreased baseScore)
+        >> Seq.filter id
+        >> Seq.length
+        |> mapSnd
+
+    let weightAction (action, count) =
+        Seq.replicate count action
+
+    actionTrees
+    |> Seq.map countScoresIncreased
+    |> Seq.collect weightAction
+    |> Random.randomElementIfNonempty
 
 let evaluateWithMaxScore actionTrees = 
     evaluateWithScorer scoreByScore Seq.max actionTrees

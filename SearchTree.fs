@@ -122,6 +122,18 @@ type SearchTree =
         
         climb [tree] tree
     
+    static member rootOf tree =
+
+        let rec parentOf tree =
+            match tree with
+            | Tree (_, None, _, _)
+            | Empty ->
+                tree
+            | Tree (_, _, parent, _) ->
+                parentOf parent
+        
+        parentOf tree
+    
     static member getRootCauseAction =
         SearchTree.pathToRoot
         >> Seq.pick SearchTree.actionOf
