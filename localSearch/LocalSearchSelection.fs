@@ -9,6 +9,11 @@ let private chooseByEvaluator evaluator =
     >> evaluator
     >> Option.map fst
 
+let private makeEvaluator terminalEvaluator nonterminalEvaluators =
+    nonterminalEvaluators
+    |> Seq.reduce (>>)
+    >> terminalEvaluator
+
 let chooseByRandomImprovement actionTrees =
     actionTrees
     |> Seq.groupBy SearchTree.getRootCauseAction
@@ -17,8 +22,8 @@ let chooseByRandomImprovement actionTrees =
 let chooseByBestScore actionTrees =
 
     let evaluator =
-        evaluateWithMaxScore
-        >> randomElementIfNonempty
+        [evaluateWithMaxScore]
+        |> makeEvaluator randomElementIfNonempty
     
     actionTrees
     |> chooseByEvaluator evaluator
@@ -26,8 +31,8 @@ let chooseByBestScore actionTrees =
 let chooseByMostOpenSpaces actionTrees =
 
     let evaluator =
-        evaluateWithMaxBlanks
-        >> randomElementIfNonempty
+        [evaluateWithMaxBlanks]
+        |> makeEvaluator randomElementIfNonempty
     
     actionTrees
     |> chooseByEvaluator evaluator
@@ -35,18 +40,16 @@ let chooseByMostOpenSpaces actionTrees =
 let chooseByMostOpenSpacesWithHighestScore actionTrees =
 
     let evaluator =
-        evaluateWithMaxBlanks
-        >> evaluateWithMaxScore
-        >> randomElementIfNonempty
+        [evaluateWithMaxBlanks;
+         evaluateWithMaxScore]
+        |> makeEvaluator randomElementIfNonempty
     
     actionTrees
     |> chooseByEvaluator evaluator
 
 let chooseByBestScoreExpectation actionTrees =
 
-    let evaluator =
-        evaluateWithExpectedScore
-        >> randomElementIfNonempty
+    let evaluator = makeEvaluator randomElementIfNonempty [evaluateWithExpectedScore]
     
     actionTrees
     |> chooseByEvaluator evaluator
@@ -54,10 +57,10 @@ let chooseByBestScoreExpectation actionTrees =
 let chooseByEUMR actionTrees =
 
     let evaluator =
-        evaluateWithExpectedBlanks
-        >> evaluateWithExpectedUniformity
-        >> evaluateWithExpectedMonotonicity
-        >> randomElementIfNonempty
+        [evaluateWithExpectedBlanks;
+         evaluateWithExpectedUniformity;
+         evaluateWithExpectedMonotonicity]
+        |> makeEvaluator randomElementIfNonempty
     
     actionTrees
     |> chooseByEvaluator evaluator
