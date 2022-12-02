@@ -1,5 +1,6 @@
 ﻿open Initialization
 open LocalSearch.Play
+open LocalSearch.Scoring.Scorers
 open LocalSearch.Selection
 open Moves
 open Test
@@ -28,7 +29,9 @@ let main args =
 
     let lookaheads = 2
 
-    let play = playTrials tileInsertionOptions lookaheads
+    let play = playTrialsWithExhaustiveSearch tileInsertionOptions lookaheads
+
+    let playAB = playTrialsWithAlphaBetaPruning tileInsertionOptions lookaheads
 
     match args with
     | [|"test"|] ->
@@ -56,6 +59,10 @@ let main args =
     | [|"EUMR"|] ->
         initialState
         |> play chooseByEUMR 1
+        ||> writeResult
+    | [|"ABPrunedMaximumScore"|] ->
+        initialState
+        |> playAB scoreByScore 1
         ||> writeResult
     | _ ->
         usage

@@ -19,7 +19,7 @@ type Action =
 
     static member manyToString =
         Seq.map Action.toString
-        >> Seq.reduce concatWithComma
+        >> Seq.fold concatWithComma ""
 
 type SearchTree =
     | Empty
@@ -29,6 +29,8 @@ type SearchTree =
         * parent: SearchTree
         * children: SearchTree seq
     with
+
+    static member empty = Empty
 
     static member mapState mapper ifEmpty searchTree =
         match searchTree with
@@ -47,7 +49,7 @@ type SearchTree =
     static member toSearchTreeRoot state =
         Tree (state, None, Empty, Seq.empty)
     
-    static member private mapStateToMany mapper tree =
+    static member mapStateToMany mapper tree =
         match tree with
         | Tree (state, action, parent, children) ->
             let returnToTrees =
@@ -58,20 +60,21 @@ type SearchTree =
         | Empty ->
             Seq.empty
     
-    static member private expandNode insertTile tree =
-        
+    static member expandLegalMoves parentTree parentState =
+
         let toChildTree action parent child =
             Tree (child, Some action, parent, Seq.empty)
 
-        let expandLegalMoves parentTree parentState =
-            seq {GameState.shiftLeft parentState |> toChildTree Left parentTree;
-                 GameState.shiftRight parentState |> toChildTree Right parentTree;
-                 GameState.shiftUp parentState |> toChildTree Up parentTree;
-                 GameState.shiftDown parentState |> toChildTree Down parentTree;}
-            |> Seq.filter (SearchTree.mapState ((<>) parentState) false)
+        seq {GameState.shiftLeft parentState |> toChildTree Left parentTree;
+                GameState.shiftRight parentState |> toChildTree Right parentTree;
+                GameState.shiftUp parentState |> toChildTree Up parentTree;
+                GameState.shiftDown parentState |> toChildTree Down parentTree;}
+        |> Seq.filter (SearchTree.mapState ((<>) parentState) false)
+    
+    static member private expandNode insertTile tree =
         
-        let children parentTree =
-            expandLegalMoves parentTree
+        let childrenOf parentTree =
+            SearchTree.expandLegalMoves parentTree
             >> Seq.map insertTile
             >> Seq.concat
 
@@ -80,28 +83,28 @@ type SearchTree =
             Tree (state,
                   action,
                   parent,
-                  children tree state)
+                  childrenOf tree state)
         | Empty ->
             Empty
     
     static member expandNodeWithoutInsertion =
         SearchTree.expandNode Seq.singleton
     
-    static member expandNodeWithExhaustiveInsertion possibleTiles =
-
+    static member expandInsertionPossibilities possibleTiles state =
+        //If this stays a separate function move it over to GameState.
         let addTileAtIndex state (row, col) tile =
             seq {state |> GameState.assignTile tile row col; }
-        
-        let expandInsertionPossibilities state =
-            state
-            |> GameState.boardOf
-            |> Board.getBlankTileIndices
-            |> Seq.map (addTileAtIndex state)
-            |> Seq.allPairs possibleTiles
-            |> Seq.map (fun (tile, assignment) -> tile |> assignment)
-            |> Seq.concat
 
-        SearchTree.expandNode (SearchTree.mapStateToMany expandInsertionPossibilities)
+        state
+        |> GameState.boardOf
+        |> Board.getBlankTileIndices
+        |> Seq.map (addTileAtIndex state)
+        |> Seq.allPairs possibleTiles
+        |> Seq.map (fun (tile, assignment) -> tile |> assignment)
+        |> Seq.concat
+    
+    static member expandNodeWithExhaustiveInsertion possibleTiles =
+        SearchTree.expandNode (SearchTree.mapStateToMany (SearchTree.expandInsertionPossibilities possibleTiles))
 
     static member getChildren tree =
         match tree with
@@ -136,4 +139,4 @@ type SearchTree =
     
     static member getRootCauseAction =
         SearchTree.pathToRoot
-        >> Seq.pick SearchTree.actionOf
+        >> Seq.tryPick SearchTree.actionOf

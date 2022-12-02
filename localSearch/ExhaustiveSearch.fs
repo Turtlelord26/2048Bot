@@ -1,8 +1,8 @@
-module LocalSearch.Search
+module LocalSearch.ExhaustiveSearch
 
 open SearchTree
 
-let nthChildren tileInsertionOptions depth =
+let exhaustiveSearch evaluationFunction tileInsertionOptions depth =
 
     let rec searchToDepth depths =
         match depths with
@@ -21,3 +21,4 @@ let nthChildren tileInsertionOptions depth =
     SearchTree.toSearchTreeRoot
     >> Seq.singleton
     >> searchToDepth depth
+    >> evaluationFunction

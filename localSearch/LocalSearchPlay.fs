@@ -2,10 +2,13 @@ module LocalSearch.Play
 
 open Game
 open LocalSearch.Actions
-open LocalSearch.Search
+open LocalSearch.AlphaBetaPrunedMinimax
+open LocalSearch.ExhaustiveSearch
 
-let private bestTrialOfPlayWithSearch searchFunction returnFromTerminalState numTrials initialState =
+let playTrialsWithExhaustiveSearch tileInsertionOptions depth evaluationFunction numTrials initialState =
 
+    let searchFunction = exhaustiveSearch evaluationFunction tileInsertionOptions depth
+    
     let localSearch = searchActionsUntilTermination searchFunction returnFromTerminalState
 
     localSearch
@@ -13,10 +16,13 @@ let private bestTrialOfPlayWithSearch searchFunction returnFromTerminalState num
     |> Seq.map ((|>) initialState)
     |> Seq.maxBy (fst >> GameState.scoreOf)
 
-let playTrials tileInsertionOptions depth scoringFunction trials initialState =
+let playTrialsWithAlphaBetaPruning tileInsertionOptions depth scoringFunction numTrials initialState =
 
-    let searchFunction =
-        nthChildren tileInsertionOptions depth
-        >> scoringFunction
+    let searchFunction = alphaBetaMinimaxSearch scoringFunction tileInsertionOptions depth
     
-    bestTrialOfPlayWithSearch searchFunction returnFromTerminalState trials initialState
+    let localSearch = searchActionsUntilTermination searchFunction returnFromTerminalState
+
+    localSearch
+    |> Seq.replicate numTrials
+    |> Seq.map ((|>) initialState)
+    |> Seq.maxBy (fst >> GameState.scoreOf)

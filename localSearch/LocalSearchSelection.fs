@@ -5,7 +5,14 @@ open Random
 open SearchTree
 
 let private chooseByEvaluator evaluator =
+
+    let hasAction (actionOption, seqTree) =
+        match actionOption with
+        | Some action -> Some (action, seqTree)
+        | None -> None
+    
     Seq.groupBy SearchTree.getRootCauseAction
+    >> Seq.choose hasAction
     >> evaluator
     >> Option.map fst
 

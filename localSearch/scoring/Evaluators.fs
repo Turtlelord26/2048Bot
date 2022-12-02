@@ -51,11 +51,16 @@ let evaluateWithRandomImprovedState actionTrees =
 
     let weightAction (action, count) =
         Seq.replicate count action
+    
+    let randomWeightedAction weightedActions =
+        match weightedActions |> Random.randomElementIfNonempty with
+        | Some actionOption -> actionOption
+        | None -> None
 
     actionTrees
     |> Seq.map countScoresIncreased
     |> Seq.collect weightAction
-    |> Random.randomElementIfNonempty
+    |> randomWeightedAction
 
 let evaluateWithMaxScore actionTrees = 
     evaluateWithScorer scoreByScore Seq.max actionTrees
