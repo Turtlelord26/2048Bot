@@ -2,7 +2,7 @@
 open LocalSearch.Play
 open LocalSearch.Scoring.Scorers
 open LocalSearch.Selection
-open Moves
+open Game
 open Test
 open Writer
 
@@ -24,45 +24,46 @@ let tests () =
     testMilestone1SampleFirstMove
     testMilestone1SampleSecondMove
 
+let lookaheads = 2
+
+let tileInsertionOptions = seq {Exponent 1; Exponent 2}
+
+let playExpectimax = playTrialsWithExhaustiveSearch tileInsertionOptions lookaheads
+
+let playAlphaBeta = playTrialsWithAlphaBetaPruning tileInsertionOptions lookaheads
+
 [<EntryPoint>]
 let main args =
-
-    let lookaheads = 2
-
-    let play = playTrialsWithExhaustiveSearch tileInsertionOptions lookaheads
-
-    let playAB = playTrialsWithAlphaBetaPruning tileInsertionOptions lookaheads
-
     match args with
     | [|"test"|] ->
         tests ()
     | [|"randomLocalSearch"|] ->
         initialState
-        |> play chooseByRandomImprovement 1
+        |> playExpectimax chooseByRandomImprovement 1
         ||> writeResult
     | [|"maximalScoreLocalSearch"|] ->
         initialState
-        |> play chooseByBestScore 1
+        |> playExpectimax chooseByBestScore 1
         ||> writeResult
     | [|"maximalBlanksLocalSearch"|] ->
         initialState
-        |> play chooseByMostOpenSpaces 1
+        |> playExpectimax chooseByMostOpenSpaces 1
         ||> writeResult
     | [|"maximalBlanksThenScoreLocalSearch"|] ->
         initialState
-        |> play chooseByMostOpenSpacesWithHighestScore 1
+        |> playExpectimax chooseByMostOpenSpacesWithHighestScore 1
         ||> writeResult
     | [|"maximalExpectedScoreLocalSearch"|] ->
         initialState
-        |> play chooseByBestScoreExpectation 1
+        |> playExpectimax chooseByBestScoreExpectation 1
         ||> writeResult
     | [|"EUMR"|] ->
         initialState
-        |> play chooseByEUMR 1
+        |> playExpectimax chooseByEUMR 1
         ||> writeResult
     | [|"ABPrunedMaximumScore"|] ->
         initialState
-        |> playAB scoreByScore 1
+        |> playAlphaBeta scoreByScore 1
         ||> writeResult
     | _ ->
         usage

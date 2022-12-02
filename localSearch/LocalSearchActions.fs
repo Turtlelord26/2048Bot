@@ -6,7 +6,7 @@ open SearchTree
 let returnFromTerminalState state actions =
     state, actions |> Seq.rev
 
-let searchActionsUntilTermination determineAction returnFromTerminalState =
+let searchActionsUntilTermination tileInsertionOptions determineAction returnFromTerminalState =
 
     let rec recurSearch actions state =
         match
@@ -15,19 +15,19 @@ let searchActionsUntilTermination determineAction returnFromTerminalState =
         with
         | Some Left ->
             state
-            |> moveLeft
+            |> moveLeft tileInsertionOptions
             |> recurSearch (Left :: actions)
         | Some Right ->
             state
-            |> moveRight
+            |> moveRight tileInsertionOptions
             |> recurSearch (Right :: actions)
         | Some Up ->
             state
-            |> moveUp
+            |> moveUp tileInsertionOptions
             |> recurSearch (Up :: actions)
         | Some Down ->
             state
-            |> moveDown
+            |> moveDown tileInsertionOptions
             |> recurSearch (Down :: actions)
         | None ->
             returnFromTerminalState state actions

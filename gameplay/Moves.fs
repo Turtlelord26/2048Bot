@@ -2,25 +2,18 @@ module Moves
 
 open Game
 
-let tileInsertionOptions =
-    seq {Exponent 1; Exponent 2}
+let private move shiftFn tileInsertionOptions = 
+    shiftFn
+    >> GameState.addRandomTile tileInsertionOptions
 
-let private insertRandomTile = 
-    tileInsertionOptions
-    |> GameState.addRandomTile
+let moveLeft tileInsertionOptions = 
+    move GameState.shiftLeft tileInsertionOptions
 
-let moveLeft =
-    GameState.shiftLeft
-    >> insertRandomTile
+let moveRight tileInsertionOptions =
+    move GameState.shiftRight tileInsertionOptions
 
-let moveRight =
-    GameState.shiftRight
-    >> insertRandomTile
+let moveUp tileInsertionOptions =
+    move GameState.shiftUp tileInsertionOptions
 
-let moveUp =
-    GameState.shiftUp
-    >> insertRandomTile
-
-let moveDown =
-    GameState.shiftDown
-    >> insertRandomTile
+let moveDown tileInsertionOptions =
+    move GameState.shiftDown tileInsertionOptions

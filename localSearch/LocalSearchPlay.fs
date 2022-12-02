@@ -9,7 +9,7 @@ let playTrialsWithExhaustiveSearch tileInsertionOptions depth evaluationFunction
 
     let searchFunction = exhaustiveSearch evaluationFunction tileInsertionOptions depth
     
-    let localSearch = searchActionsUntilTermination searchFunction returnFromTerminalState
+    let localSearch = searchActionsUntilTermination tileInsertionOptions searchFunction returnFromTerminalState
 
     localSearch
     |> Seq.replicate numTrials
@@ -20,7 +20,7 @@ let playTrialsWithAlphaBetaPruning tileInsertionOptions depth scoringFunction nu
 
     let searchFunction = alphaBetaMinimaxSearch scoringFunction tileInsertionOptions depth
     
-    let localSearch = searchActionsUntilTermination searchFunction returnFromTerminalState
+    let localSearch = searchActionsUntilTermination tileInsertionOptions searchFunction returnFromTerminalState
 
     localSearch
     |> Seq.replicate numTrials
