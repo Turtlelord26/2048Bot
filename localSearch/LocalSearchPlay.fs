@@ -22,20 +22,7 @@ let playTrialsWithExhaustiveSearch weightedTileInsertionOptions depth evaluation
     |> Seq.map ((|>) initialState)
     |> Seq.maxBy (fst >> GameState.scoreOf)
 
-let playTrialsWithAlphaBetaPruning weightedTileInsertionOptions depth scoringFunction numTrials initialState =
-
-    let unweightedTileInsertionOptions = unweight weightedTileInsertionOptions
-
-    let searchFunction = alphaBetaMinimaxSearch scoringFunction unweightedTileInsertionOptions depth
-    
-    let localSearch = searchActionsUntilTermination weightedTileInsertionOptions searchFunction returnFromTerminalState
-
-    localSearch
-    |> Seq.replicate numTrials
-    |> Seq.map ((|>) initialState)
-    |> Seq.maxBy (fst >> GameState.scoreOf)
-
-let playTrialsWithMinimax weightedTileInsertionOptions depth scoringFunction numTrials initialState =
+let private playWithMinimaxSearch minimaxSearch weightedTileInsertionOptions depth scoringFunction numTrials initialState =
 
     let unweightedTileInsertionOptions = unweight weightedTileInsertionOptions
 
@@ -47,3 +34,7 @@ let playTrialsWithMinimax weightedTileInsertionOptions depth scoringFunction num
     |> Seq.replicate numTrials
     |> Seq.map ((|>) initialState)
     |> Seq.maxBy (fst >> GameState.scoreOf)
+
+let playTrialsWithAlphaBetaPruning weightedTileInsertionOptions = playWithMinimaxSearch alphaBetaMinimaxSearch weightedTileInsertionOptions
+
+let playTrialsWithMinimax weightedTileInsertionOptions = playWithMinimaxSearch minimaxSearch weightedTileInsertionOptions
