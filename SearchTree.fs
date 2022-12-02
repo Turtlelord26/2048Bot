@@ -103,8 +103,10 @@ type SearchTree =
         |> Seq.map (fun (tile, assignment) -> tile |> assignment)
         |> Seq.concat
     
-    static member expandNodeWithExhaustiveInsertion possibleTiles =
-        SearchTree.expandNode (SearchTree.mapStateToMany (SearchTree.expandInsertionPossibilities possibleTiles))
+    static member expandNodeWithExhaustiveInsertion =
+        SearchTree.expandInsertionPossibilities
+        >> SearchTree.mapStateToMany
+        >> SearchTree.expandNode
 
     static member getChildren tree =
         match tree with

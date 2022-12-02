@@ -2,7 +2,7 @@ module Initialization
 
 open Game
 
-let private makeInitialBoard rows cols numPreplacedTiles initialTileOptions =
+let makeInitialBoard rows cols numPreplacedTiles initialTileOptions =
     
     let rec addRandomTiles options count state =
         match count with
@@ -11,14 +11,6 @@ let private makeInitialBoard rows cols numPreplacedTiles initialTileOptions =
             |> GameState.addRandomTile options
             |> addRandomTiles options (count - 1)
         | _ -> state
-    
-    let addRandomInitialTiles = addRandomTiles initialTileOptions
 
     GameState.initialState rows cols
-    |> addRandomInitialTiles numPreplacedTiles
-
-let private initialTileOptions = seq {Exponent 1}
-
-let initialState =
-    initialTileOptions
-    |> makeInitialBoard 4 4 2
+    |> addRandomTiles initialTileOptions numPreplacedTiles

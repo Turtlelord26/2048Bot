@@ -26,11 +26,15 @@ let tests () =
 
 let lookaheads = 2
 
-let tileInsertionOptions = seq {Exponent 1; Exponent 2}
+let tileInsertionOptions = seq {0.5, Exponent 1; 0.5, Exponent 2}
 
 let playExpectimax = playTrialsWithExhaustiveSearch tileInsertionOptions lookaheads
 
 let playAlphaBeta = playTrialsWithAlphaBetaPruning tileInsertionOptions lookaheads
+
+let initialTileOptions = seq {1., Exponent 1}
+
+let initialState = makeInitialBoard 4 4 2 initialTileOptions
 
 [<EntryPoint>]
 let main args =

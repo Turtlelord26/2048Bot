@@ -76,7 +76,8 @@ let alphaBetaMinimaxSearch scoreTree tileInsertionOptions depth =
             v
     
     and minValue depth alpha beta =
-        SearchTree.expandInsertionPossibilities tileInsertionOptions
+        tileInsertionOptions
+        |> SearchTree.expandInsertionPossibilities
         |> SearchTree.mapStateToMany
         >> minRecurThroughChildren depth initMinV alpha beta
     
