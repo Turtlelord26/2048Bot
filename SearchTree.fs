@@ -60,7 +60,7 @@ type SearchTree =
         | Empty ->
             Seq.empty
     
-    static member expandLegalMoves parentTree parentState =
+    static member private expandLegalMoves parentTree parentState =
 
         let toChildTree action parent child =
             Tree (child, Some action, parent, Seq.empty)

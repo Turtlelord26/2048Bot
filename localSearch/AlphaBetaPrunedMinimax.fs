@@ -1,5 +1,6 @@
 module LocalSearch.AlphaBetaPrunedMinimax
 
+open Random
 open SearchTree
 
 let private ninfinity = -1. * infinity
@@ -30,7 +31,7 @@ let private alphaTest v alpha =
 let private betaTest v beta =
     compareVToConst (>=) v beta
 
-let alphaBetaMinimaxSearch scoreTree tileInsertionOptions depth =
+let alphaBetaMinimaxSearch scoreTree tileInsertionOptions depth state =
 
     let rec depthTest depth alpha beta tree =
         if
@@ -81,7 +82,27 @@ let alphaBetaMinimaxSearch scoreTree tileInsertionOptions depth =
         |> SearchTree.mapStateToMany
         >> minRecurThroughChildren depth initMinV alpha beta
     
-    SearchTree.toSearchTreeRoot
-    >> maxValue depth initAlpha initBeta
-    >> snd
-    >> SearchTree.getRootCauseAction
+    
+    
+    let root =
+        state
+        |> SearchTree.toSearchTreeRoot
+    
+    let choice =
+        root
+        |> maxValue depth initAlpha initBeta
+        |> snd
+        |> SearchTree.getRootCauseAction
+    
+    match choice with
+    | Some _ -> choice
+    | None ->
+        match
+            root
+            |> SearchTree.expandNodeWithoutInsertion
+            |> SearchTree.getChildren
+            |> Seq.map SearchTree.getRootCauseAction
+            |> randomElementIfNonempty
+        with
+        | Some actionOption -> actionOption
+        | None -> None

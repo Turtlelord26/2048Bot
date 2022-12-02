@@ -1,5 +1,6 @@
 module LocalSearch.Minimax
 
+open Random
 open SearchTree
 
 let private ninfinity = -1. * infinity
@@ -17,7 +18,7 @@ let private minV = compareVs (<)
 
 let private maxV = compareVs (>)
 
-let minimaxSearch scoreTree tileInsertionOptions depth =
+let minimaxSearch scoreTree tileInsertionOptions depth state =
 
     let rec depthTest depth tree =
         if
@@ -58,7 +59,26 @@ let minimaxSearch scoreTree tileInsertionOptions depth =
         |> SearchTree.mapStateToMany
         >> minRecurThroughChildren depth initMinV
     
-    SearchTree.toSearchTreeRoot
-    >> maxValue depth
-    >> snd
-    >> SearchTree.getRootCauseAction
+    let root =
+        state
+        |> SearchTree.toSearchTreeRoot
+    
+    let choice =
+        root
+        |> maxValue depth
+        |> snd
+        |> SearchTree.getRootCauseAction
+    
+    match choice with
+    | Some _ -> choice
+    | None ->
+        match
+            root
+            |> SearchTree.expandNodeWithoutInsertion
+            |> SearchTree.getChildren
+            |> Seq.map SearchTree.getRootCauseAction
+            |> randomElementIfNonempty
+        with
+        | Some actionOption -> actionOption
+        | None -> None
+
