@@ -40,45 +40,45 @@ let alphaBetaMinimaxSearch scoreTree tileInsertionOptions depth =
         else
             minValue depth alpha beta tree
     
-    and maxRecurThroughChildren depth (v, vtree) alpha beta children =
+    and maxRecurThroughChildren depth v alpha beta children =
         match Seq.tryHead children with
         | Some child ->
-            let (newV, newVTree) =
+            let newV =
                 depthTest depth alpha beta child
-                |> maxV (v, vtree)
+                |> maxV v
             if
-                betaTest (newV, newVTree) beta
+                betaTest newV beta
             then
-                (newV, newVTree)
+                newV
             else
-                maxRecurThroughChildren depth (newV, newVTree) (max alpha newV) beta (Seq.tail children)
+                maxRecurThroughChildren depth newV (fst newV |> max alpha) beta (Seq.tail children)
         | None ->
-            (v, vtree)
+            v
     
-    and maxValue depth alpha beta tree =
-        tree |> SearchTree.expandNodeWithoutInsertion
-        |> SearchTree.getChildren
-        |> maxRecurThroughChildren depth initMaxV alpha beta
+    and maxValue depth alpha beta =
+        SearchTree.expandNodeWithoutInsertion
+        >> SearchTree.getChildren
+        >> maxRecurThroughChildren depth initMaxV alpha beta
 
-    and minRecurThroughChildren depth (v, vTree) alpha beta children =
+    and minRecurThroughChildren depth v alpha beta children =
         match Seq.tryHead children with
         | Some child ->
-            let (newV, newVTree) =
+            let newV =
                 maxValue (depth - 1) alpha beta child
-                |> minV (v, vTree)
+                |> minV v
             if
-                alphaTest (newV, newVTree) alpha
+                alphaTest newV alpha
             then
-                (newV, newVTree)
+                newV
             else
-                minRecurThroughChildren depth (newV, newVTree) alpha (min beta newV) (Seq.tail children)
+                minRecurThroughChildren depth newV alpha (fst newV |> min beta) (Seq.tail children)
         | None ->
-            (v, vTree)
+            v
     
-    and minValue depth alpha beta tree =
-        tree
-        |> (SearchTree.expandInsertionPossibilities tileInsertionOptions |> SearchTree.mapStateToMany)
-        |> minRecurThroughChildren depth initMinV alpha beta
+    and minValue depth alpha beta =
+        SearchTree.expandInsertionPossibilities tileInsertionOptions
+        |> SearchTree.mapStateToMany
+        >> minRecurThroughChildren depth initMinV alpha beta
     
     SearchTree.toSearchTreeRoot
     >> maxValue depth initAlpha initBeta
