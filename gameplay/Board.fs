@@ -46,7 +46,7 @@ let getBlankTileIndices =
     >> Seq.filter (fst >> Tile.isBlank)
     >> Seq.map snd
 
-let writeTileToBoard tile row col (tiles: Tile[,]) =
+let writeTileToBoard tile row col (tiles: 'a[,]) =
         tiles[row, col] <- tile
         tiles
 

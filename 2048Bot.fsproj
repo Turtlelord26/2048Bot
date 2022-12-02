@@ -24,6 +24,7 @@
     <Compile Include="localSearch/scoring/Evaluators.fs" />
     <Compile Include="localSearch/LocalSearchSelection.fs" />
     <Compile Include="localSearch/ExhaustiveSearch.fs" />
+    <Compile Include="localSearch/Minimax.fs" />
     <Compile Include="localSearch/AlphaBetaPrunedMinimax.fs" />
     <Compile Include="localSearch/LocalSearchPlay.fs" />
     <Compile Include="io/GameStateWriter.fs" />

@@ -38,9 +38,9 @@ let randomElementIfNonempty sequence =
 /// Will crash if given an empty sequence.
 let weightedRandomElement sequence =
 
-    let rec selectByWeight selector sequence =
+    let rec selectByWeight selector sequence = 
         match Seq.head sequence with
-        | i, element when i < selector ->
+        | i, element when i > selector ->
             element
         | j, _ ->
             selectByWeight (selector - j) (Seq.tail sequence)

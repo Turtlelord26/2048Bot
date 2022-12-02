@@ -32,6 +32,8 @@ let playExpectimax = playTrialsWithExhaustiveSearch tileInsertionOptions lookahe
 
 let playAlphaBeta = playTrialsWithAlphaBetaPruning tileInsertionOptions lookaheads
 
+let playMinimax = playTrialsWithMinimax tileInsertionOptions lookaheads
+
 let initialTileOptions = seq {1., Exponent 1}
 
 let initialState = makeInitialBoard 4 4 2 initialTileOptions
@@ -68,6 +70,10 @@ let main args =
     | [|"ABPrunedMaximumScore"|] ->
         initialState
         |> playAlphaBeta scoreByScore 1
+        ||> writeResult
+    | [|"MinimaxMaximumScore"|] ->
+        initialState
+        |> playMinimax scoreByScore 1
         ||> writeResult
     | _ ->
         usage
