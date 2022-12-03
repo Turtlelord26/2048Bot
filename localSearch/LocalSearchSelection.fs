@@ -18,7 +18,7 @@ let private chooseByEvaluator evaluator =
 
 let private makeEvaluator terminalEvaluator nonterminalEvaluators =
     nonterminalEvaluators
-    |> Seq.reduce (>>)
+    |> Seq.fold (>>) id
     >> terminalEvaluator
 
 let chooseByRandomImprovement actionTrees =

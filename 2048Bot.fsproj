@@ -33,6 +33,7 @@
     <Compile Include="test/GameStateTestExpectations.fs" />
     <Compile Include="test/GameStateTestUtils.fs" />
     <Compile Include="test/GameStateTest.fs" />
+    <Compile Include="RuntimeBenchmark.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 </Project>

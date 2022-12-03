@@ -3,6 +3,7 @@ open LocalSearch.Play
 open LocalSearch.Scoring.Scorers
 open LocalSearch.Selection
 open Game
+open RuntimeBenchmark
 open Test
 open Writer
 
@@ -38,8 +39,7 @@ let initialTileOptions = seq {1., Exponent 1}
 
 let initialState = makeInitialBoard 4 4 2 initialTileOptions
 
-[<EntryPoint>]
-let main args =
+let commandSwitch args =
     match args with
     | [|"test"|] ->
         tests ()
@@ -78,4 +78,8 @@ let main args =
     | _ ->
         usage
         |> writeStringToConsole
+
+[<EntryPoint>]
+let main args =
+    (commandSwitch, args) ||> measureAndPrintRuntime
     0

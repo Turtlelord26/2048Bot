@@ -19,7 +19,7 @@ type Action =
 
     static member manyToString =
         Seq.map Action.toString
-        >> Seq.fold concatWithComma ""
+        >> Seq.reduce concatWithComma
 
 type SearchTree =
     | Empty
