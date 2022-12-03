@@ -5,7 +5,9 @@ open Game
 open SearchTree
 open TupleUtils
 
-let private evaluateWithScorer scoreTree selectionFunction actionTrees =
+let private evaluateWithScorer scoreTree selectionFunction actionTreeInput =
+
+    let actionTrees = Seq.cache actionTreeInput
     
     let actionScores =
         Seq.map (Seq.map scoreTree |> mapSnd)
@@ -21,7 +23,11 @@ let private evaluateWithScorer scoreTree selectionFunction actionTrees =
         |> Seq.map fst
     
     let actionInBestActions action =
-        Seq.contains action (bestActions (actionScores actionTrees))
+        actionTrees
+        |> actionScores
+        |> Seq.cache
+        |> bestActions
+        |> Seq.contains action
     
     actionTrees
     |> Seq.filter (fst >> actionInBestActions)

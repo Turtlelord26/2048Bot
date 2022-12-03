@@ -7,12 +7,18 @@ open RuntimeBenchmark
 open Test
 open Writer
 
+open System
+
 let usage = @"Usage: Run with one argument.
 test will run unit tests
 maximalScoreLocalSearch will play 2048 25 times using a local search that seeks maximum score
 maximalBlanksLocalSearch will play 2048 25 times using a local search that seeks maximum number of blank spaces
 maximalBlanksThenScoreLocalSearch will play 2048 25 times using a local search that seeks maximum number of blank spaces and score, in that order
 maximalExpectedScoreLocalSearch will play 2048 25 times using a local search that seeks maximum expected score of each action"
+
+let printUsage () =
+    usage
+    |> writeStringToConsole
 
 let tests () =
     testBasicShifts
@@ -43,43 +49,47 @@ let commandSwitch args =
     match args with
     | [|"test"|] ->
         tests ()
-    | [|"randomLocalSearch"|] ->
+    | [|"randomLocalSearch"; trials|] ->
         initialState
-        |> playExpectimax chooseByRandomImprovement 1
+        |> playExpectimax chooseByRandomImprovement (int trials)
         ||> writeResult
-    | [|"maximalScoreLocalSearch"|] ->
+    | [|"maximalScoreLocalSearch"; trials|] ->
         initialState
-        |> playExpectimax chooseByBestScore 1
+        |> playExpectimax chooseByBestScore (int trials)
         ||> writeResult
-    | [|"maximalBlanksLocalSearch"|] ->
+    | [|"maximalBlanksLocalSearch"; trials|] ->
         initialState
-        |> playExpectimax chooseByMostOpenSpaces 1
+        |> playExpectimax chooseByMostOpenSpaces (int trials)
         ||> writeResult
-    | [|"maximalBlanksThenScoreLocalSearch"|] ->
+    | [|"maximalBlanksThenScoreLocalSearch"; trials|] ->
         initialState
-        |> playExpectimax chooseByMostOpenSpacesWithHighestScore 1
+        |> playExpectimax chooseByMostOpenSpacesWithHighestScore (int trials)
         ||> writeResult
-    | [|"maximalExpectedScoreLocalSearch"|] ->
+    | [|"maximalExpectedScoreLocalSearch"; trials|] ->
         initialState
-        |> playExpectimax chooseByBestScoreExpectation 1
+        |> playExpectimax chooseByBestScoreExpectation (int trials)
         ||> writeResult
-    | [|"EUMR"|] ->
+    | [|"EUMR"; trials|] ->
         initialState
-        |> playExpectimax chooseByEUMR 1
+        |> playExpectimax chooseByEUMR (int trials)
         ||> writeResult
-    | [|"ABPrunedMaximumScore"|] ->
+    | [|"ABPrunedMaximumScore"; trials|] ->
         initialState
-        |> playAlphaBeta scoreByScore 1
+        |> playAlphaBeta scoreByScore (int trials)
         ||> writeResult
-    | [|"MinimaxMaximumScore"|] ->
+    | [|"MinimaxMaximumScore"; trials|] ->
         initialState
-        |> playMinimax scoreByScore 1
+        |> playMinimax scoreByScore (int trials)
         ||> writeResult
     | _ ->
-        usage
-        |> writeStringToConsole
+        printUsage ()
 
 [<EntryPoint>]
 let main args =
-    (commandSwitch, args) ||> measureAndPrintRuntime
+    try
+        (commandSwitch, args) ||> measureAndPrintRuntime
+    with
+    | :? FormatException as fe ->
+        "Error: " + fe.Message |> printfn "%s"
+        printUsage ()
     0

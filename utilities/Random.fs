@@ -14,12 +14,14 @@ type Random with
 /// Use randomElementIfNonempty if the possibility exists
 let randomElement sequence =
 
+    let cached = Seq.cache sequence
+
     let randomIndex =
-        sequence
+        cached
         |> Seq.length
         |> random.next
     
-    sequence
+    cached
     |> Seq.item randomIndex
 
 let randomElementIfNonempty sequence =
