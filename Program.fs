@@ -9,12 +9,19 @@ open Writer
 
 open System
 
-let usage = @"Usage: Run with one argument.
-test will run unit tests
-maximalScoreLocalSearch will play 2048 25 times using a local search that seeks maximum score
-maximalBlanksLocalSearch will play 2048 25 times using a local search that seeks maximum number of blank spaces
-maximalBlanksThenScoreLocalSearch will play 2048 25 times using a local search that seeks maximum number of blank spaces and score, in that order
-maximalExpectedScoreLocalSearch will play 2048 25 times using a local search that seeks maximum expected score of each action"
+let usage = @"
+Usage: dotnet run [keyword] [lookahead depth] [trials].
+Keywords:
+test will run unit tests (no following integers)
+MinimaxMaximumScore will play 2048 using a minimax search that uses the ingame score of states
+ABPrunedMinimaxMaximumScore will play 2048 using an alpha-beta pruned minimax search, using the ingame scores of states.
+ExpectimaxMaximumScore will play 2048 25 times using an expectimax search that uses ingame scores
+ExpectimaxEUMR will play 2048 using expectimax search and a multistage heuristic to evaluate states
+
+Lookahead depth is the depth of search trees generated when calculating the next move. Must be >=2. 2 is the most well-tested. 3 and above run slowly.
+
+Trials is the number of games the program will run back to back. Only the highest-scoring game will be printed to console. Must be >=1.
+"
 
 let printUsage () =
     usage
