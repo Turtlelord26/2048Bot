@@ -34,17 +34,3 @@ let randomElementIfNonempty sequence =
         sequence
         |> randomElement
         |> Some
-
-/// Elements of the argument sequence must have weights that sum to 1.
-/// After processing weights totaling to 1 further elements are ignored.
-/// Will crash if given an empty sequence.
-let weightedRandomElement sequence =
-
-    let rec selectByWeight selector sequence = 
-        match Seq.head sequence with
-        | i, element when i > selector ->
-            element
-        | j, _ ->
-            selectByWeight (selector - j) (Seq.tail sequence)
-    
-    selectByWeight (random.nextFloat) sequence

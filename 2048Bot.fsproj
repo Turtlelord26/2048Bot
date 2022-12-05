@@ -10,7 +10,6 @@
     <Compile Include="utilities/StringUtils.fs" />
     <Compile Include="utilities/TupleUtils.fs" />
     <Compile Include="utilities/Random.fs" />
-    <Compile Include="utilities/RunningAverage.fs" />
     <Compile Include="utilities/ShiftTypes.fs" />
     <Compile Include="gameplay/Tile.fs" />
     <Compile Include="gameplay/Board.fs" />
