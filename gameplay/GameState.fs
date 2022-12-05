@@ -19,7 +19,7 @@ type GameState =
         (State (Array2D.copy board, score))
         |> func
     
-    static member assignTile tile row col =
+    static member private assignTile tile row col =
 
         let assignTileToBoardIndex tile row col (State (board, score)) =
             (board |> Board.writeTileToBoard tile row col, score)
@@ -86,3 +86,16 @@ type GameState =
     static member shiftDown =
         GameState.shiftAll ByColumn Backward
         |> GameState.applyOverCopy
+    
+    static member expandInsertionPossibilities possibleTiles state =
+    
+        let addTileAtIndex state (row, col) tile =
+            seq {state |> GameState.assignTile tile row col; }
+
+        state
+        |> GameState.boardOf
+        |> Board.getBlankTileIndices
+        |> Seq.map (addTileAtIndex state)
+        |> Seq.allPairs possibleTiles
+        |> Seq.map (fun (tile, assignment) -> tile |> assignment)
+        |> Seq.concat

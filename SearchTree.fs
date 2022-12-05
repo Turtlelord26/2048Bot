@@ -39,7 +39,7 @@ type SearchTree =
         | Empty ->
             ifEmpty
         
-    static member actionOf tree =
+    static member private actionOf tree =
         match tree with
         | Tree (_, action, _, _) ->
             action
@@ -90,21 +90,8 @@ type SearchTree =
     static member expandNodeWithoutInsertion =
         SearchTree.expandNode Seq.singleton
     
-    static member expandInsertionPossibilities possibleTiles state =
-        //If this stays a separate function move it over to GameState.
-        let addTileAtIndex state (row, col) tile =
-            seq {state |> GameState.assignTile tile row col; }
-
-        state
-        |> GameState.boardOf
-        |> Board.getBlankTileIndices
-        |> Seq.map (addTileAtIndex state)
-        |> Seq.allPairs possibleTiles
-        |> Seq.map (fun (tile, assignment) -> tile |> assignment)
-        |> Seq.concat
-    
     static member expandNodeWithExhaustiveInsertion =
-        SearchTree.expandInsertionPossibilities
+        GameState.expandInsertionPossibilities
         >> SearchTree.mapStateToMany
         >> SearchTree.expandNode
 
@@ -115,7 +102,7 @@ type SearchTree =
         | Empty ->
             Seq.empty
 
-    static member pathToRoot tree =
+    static member private pathToRoot tree =
         
         let rec climb path tree =
             match tree with
@@ -126,18 +113,6 @@ type SearchTree =
                 climb (parent :: path) parent
         
         climb [tree] tree
-    
-    static member rootOf tree =
-
-        let rec parentOf tree =
-            match tree with
-            | Tree (_, None, _, _)
-            | Empty ->
-                tree
-            | Tree (_, _, parent, _) ->
-                parentOf parent
-        
-        parentOf tree
     
     static member getRootCauseAction =
         SearchTree.pathToRoot

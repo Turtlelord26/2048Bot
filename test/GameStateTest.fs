@@ -2,10 +2,8 @@ module Test
 
 open Game
 open GameStateTestUtils
-open TestUtils
 open TestStates
 open TestStateExpectations
-open Writer
 
 let testLeftShift  =
     testShift "Test left shift: " GameState.shiftLeft testState expectedLeft

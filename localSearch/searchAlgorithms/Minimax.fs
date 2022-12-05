@@ -1,5 +1,6 @@
 module LocalSearch.Minimax
 
+open Game
 open Random
 open SearchTree
 
@@ -55,7 +56,7 @@ let minimaxSearch scoreTree tileInsertionOptions depth state =
     
     and minValue depth =
         tileInsertionOptions
-        |> SearchTree.expandInsertionPossibilities
+        |> GameState.expandInsertionPossibilities
         |> SearchTree.mapStateToMany
         >> minRecurThroughChildren depth initMinV
     

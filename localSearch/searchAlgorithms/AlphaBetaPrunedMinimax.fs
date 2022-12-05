@@ -1,5 +1,6 @@
 module LocalSearch.AlphaBetaPrunedMinimax
 
+open Game
 open Random
 open SearchTree
 
@@ -78,7 +79,7 @@ let alphaBetaMinimaxSearch scoreTree tileInsertionOptions depth state =
     
     and minValue depth alpha beta =
         tileInsertionOptions
-        |> SearchTree.expandInsertionPossibilities
+        |> GameState.expandInsertionPossibilities
         |> SearchTree.mapStateToMany
         >> minRecurThroughChildren depth initMinV alpha beta
     
