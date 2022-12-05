@@ -21,39 +21,6 @@ let private makeEvaluator terminalEvaluator nonterminalEvaluators =
     |> Seq.fold (>>) id
     >> terminalEvaluator
 
-let chooseByRandomImprovement trees =
-    trees
-    |> Seq.groupBy SearchTree.getRootCauseAction
-    |> evaluateWithRandomImprovedState
-
-let chooseByBestScore trees =
-
-    let evaluator =
-        [evaluateWithMaxScore]
-        |> makeEvaluator randomElementIfNonempty
-    
-    trees
-    |> chooseByEvaluator evaluator
-
-let chooseByMostOpenSpaces trees =
-
-    let evaluator =
-        [evaluateWithMaxBlanks]
-        |> makeEvaluator randomElementIfNonempty
-    
-    trees
-    |> chooseByEvaluator evaluator
-
-let chooseByMostOpenSpacesWithHighestScore trees =
-
-    let evaluator =
-        [evaluateWithMaxBlanks;
-         evaluateWithMaxScore]
-        |> makeEvaluator randomElementIfNonempty
-    
-    trees
-    |> chooseByEvaluator evaluator
-
 let chooseByBestScoreExpectation trees =
 
     let evaluator = makeEvaluator randomElementIfNonempty [evaluateWithExpectedScore]

@@ -47,27 +47,11 @@ let commandSwitch args =
     match args with
     | [|"test"|] ->
         tests ()
-    | [|"randomLocalSearch"; lookaheads; trials|] ->
-        initialState
-        |> playExpectimax (int lookaheads) chooseByRandomImprovement (int trials)
-        ||> writeResult
-    | [|"maximalScoreLocalSearch"; lookaheads; trials|] ->
-        initialState
-        |> playExpectimax (int lookaheads) chooseByBestScore (int trials)
-        ||> writeResult
-    | [|"maximalBlanksLocalSearch"; lookaheads; trials|] ->
-        initialState
-        |> playExpectimax (int lookaheads) chooseByMostOpenSpaces (int trials)
-        ||> writeResult
-    | [|"maximalBlanksThenScoreLocalSearch"; lookaheads; trials|] ->
-        initialState
-        |> playExpectimax (int lookaheads) chooseByMostOpenSpacesWithHighestScore (int trials)
-        ||> writeResult
-    | [|"maximalExpectedScoreLocalSearch"; lookaheads; trials|] ->
+    | [|"ExpectimaxMaximumScore"; lookaheads; trials|] ->
         initialState
         |> playExpectimax (int lookaheads) chooseByBestScoreExpectation (int trials)
         ||> writeResult
-    | [|"EUMR"; lookaheads; trials|] ->
+    | [|"ExpectimaxEUMR"; lookaheads; trials|] ->
         initialState
         |> playExpectimax (int lookaheads) chooseByEUMR (int trials)
         ||> writeResult

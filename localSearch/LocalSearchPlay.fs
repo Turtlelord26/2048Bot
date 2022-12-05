@@ -29,6 +29,6 @@ let private playWithMinimaxSearch minimaxSearch tileInsertionOptions depth scori
     localSearch
     |> runSearch numTrials initialState
 
-let playTrialsWithAlphaBetaPruning weightedTileInsertionOptions = playWithMinimaxSearch alphaBetaMinimaxSearch weightedTileInsertionOptions
+let playTrialsWithAlphaBetaPruning tileInsertionOptions = playWithMinimaxSearch alphaBetaMinimaxSearch tileInsertionOptions
 
-let playTrialsWithMinimax weightedTileInsertionOptions = playWithMinimaxSearch minimaxSearch weightedTileInsertionOptions
+let playTrialsWithMinimax tileInsertionOptions = playWithMinimaxSearch minimaxSearch tileInsertionOptions

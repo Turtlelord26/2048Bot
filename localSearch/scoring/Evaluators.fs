@@ -1,8 +1,6 @@
 module LocalSearch.Scoring.Evaluators
 
 open LocalSearch.Scoring.Scorers
-open Game
-open SearchTree
 open TupleUtils
 
 let private evaluateWithScorer scoreTree selectionFunction actionTreeInput =
@@ -31,48 +29,6 @@ let private evaluateWithScorer scoreTree selectionFunction actionTreeInput =
     
     actionTrees
     |> Seq.filter (fst >> actionInBestActions)
-
-let evaluateWithRandomImprovedState actionTrees =
-
-    let baseScore =
-        actionTrees
-        |> Seq.tryHead
-        |> Option.map snd
-        |> Option.map Seq.head
-        |> Option.map SearchTree.rootOf
-        |> Option.map (SearchTree.mapState GameState.scoreOf 0)
-    
-    let scoreIncreased baseScore tree =
-        match baseScore with
-        | Some i ->
-            tree |> SearchTree.mapState GameState.scoreOf 0 > i
-            |> Some
-        | None -> None
-    
-    let countScoresIncreased =
-        Seq.choose (scoreIncreased baseScore)
-        >> Seq.filter id
-        >> Seq.length
-        |> mapSnd
-
-    let weightAction (action, count) =
-        Seq.replicate count action
-    
-    let randomWeightedAction weightedActions =
-        match weightedActions |> Random.randomElementIfNonempty with
-        | Some actionOption -> actionOption
-        | None -> None
-
-    actionTrees
-    |> Seq.map countScoresIncreased
-    |> Seq.collect weightAction
-    |> randomWeightedAction
-
-let evaluateWithMaxScore actionTrees = 
-    evaluateWithScorer scoreByScore Seq.max actionTrees
-
-let evaluateWithMaxBlanks actionTrees =
-    evaluateWithScorer scoreByBlanks Seq.max actionTrees
 
 let evaluateWithExpectedBlanks actionTrees =
     evaluateWithScorer scoreByBlanks Seq.average actionTrees
