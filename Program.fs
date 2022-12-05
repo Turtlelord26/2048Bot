@@ -1,7 +1,7 @@
 ﻿open Initialization
 open LocalSearch.Play
 open LocalSearch.Scoring.Scorers
-open LocalSearch.Selection
+open LocalSearch.Scoring.CompositeEvaluators
 open Game
 open RuntimeBenchmark
 open Test

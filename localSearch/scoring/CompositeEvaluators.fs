@@ -1,4 +1,4 @@
-module LocalSearch.Selection
+module LocalSearch.Scoring.CompositeEvaluators
 
 open LocalSearch.Scoring.Evaluators
 open Random
