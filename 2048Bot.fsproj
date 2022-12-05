@@ -26,11 +26,6 @@
     <Compile Include="localSearch/searchAlgorithms/AlphaBetaPrunedMinimax.fs" />
     <Compile Include="localSearch/LocalSearchPlay.fs" />
     <Compile Include="io/GameStateWriter.fs" />
-    <Compile Include="test/TestUtils.fs" />
-    <Compile Include="test/GameStateTestStates.fs" />
-    <Compile Include="test/GameStateTestExpectations.fs" />
-    <Compile Include="test/GameStateTestUtils.fs" />
-    <Compile Include="test/GameStateTest.fs" />
     <Compile Include="RuntimeBenchmark.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
