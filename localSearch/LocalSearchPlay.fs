@@ -6,32 +6,25 @@ open LocalSearch.AlphaBetaPrunedMinimax
 open LocalSearch.ExhaustiveSearch
 open LocalSearch.Minimax
 
-let private unweight tileInsertionOptions =
-        Seq.map snd tileInsertionOptions
-
 let private runSearch numTrials initialState =
     Seq.replicate numTrials
     >> Seq.map ((|>) initialState)
     >> Seq.maxBy (fst >> GameState.scoreOf)
 
-let playTrialsWithExhaustiveSearch weightedTileInsertionOptions depth evaluationFunction numTrials initialState =
+let playTrialsWithExhaustiveSearch tileInsertionOptions depth evaluationFunction numTrials initialState =
 
-    let unweightedTileInsertionOptions = unweight weightedTileInsertionOptions
-
-    let searchFunction = exhaustiveSearch evaluationFunction unweightedTileInsertionOptions depth
+    let searchFunction = exhaustiveSearch evaluationFunction tileInsertionOptions depth
     
-    let localSearch = searchActionsUntilTermination weightedTileInsertionOptions searchFunction returnFromTerminalState
+    let localSearch = searchActionsUntilTermination tileInsertionOptions searchFunction returnFromTerminalState
 
     localSearch
     |> runSearch numTrials initialState
 
-let private playWithMinimaxSearch minimaxSearch weightedTileInsertionOptions depth scoringFunction numTrials initialState =
+let private playWithMinimaxSearch minimaxSearch tileInsertionOptions depth scoringFunction numTrials initialState =
 
-    let unweightedTileInsertionOptions = unweight weightedTileInsertionOptions
-
-    let searchFunction = minimaxSearch scoringFunction unweightedTileInsertionOptions depth
+    let searchFunction = minimaxSearch scoringFunction tileInsertionOptions depth
     
-    let localSearch = searchActionsUntilTermination weightedTileInsertionOptions searchFunction returnFromTerminalState
+    let localSearch = searchActionsUntilTermination tileInsertionOptions searchFunction returnFromTerminalState
 
     localSearch
     |> runSearch numTrials initialState

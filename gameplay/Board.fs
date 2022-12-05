@@ -64,7 +64,7 @@ let addRandomTileToRandomBlank options =
             board
     
     options
-    |> weightedRandomElement
+    |> randomElement
     |> addTileToRandomBlankIfAny
 
 let private shift tileList =

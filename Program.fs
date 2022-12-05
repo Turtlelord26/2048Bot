@@ -31,17 +31,15 @@ let tests () =
     testMilestone1SampleFirstMove
     testMilestone1SampleSecondMove
 
-let lookaheads = 2
+let tileInsertionOptions = [Exponent 1; Exponent 2]
 
-let tileInsertionOptions = seq {0.5, Exponent 1; 0.5, Exponent 2}
+let playExpectimax = playTrialsWithExhaustiveSearch tileInsertionOptions
 
-let playExpectimax = playTrialsWithExhaustiveSearch tileInsertionOptions lookaheads
+let playAlphaBeta = playTrialsWithAlphaBetaPruning tileInsertionOptions
 
-let playAlphaBeta = playTrialsWithAlphaBetaPruning tileInsertionOptions lookaheads
+let playMinimax = playTrialsWithMinimax tileInsertionOptions
 
-let playMinimax = playTrialsWithMinimax tileInsertionOptions lookaheads
-
-let initialTileOptions = seq {1., Exponent 1}
+let initialTileOptions = [Exponent 1]
 
 let initialState = makeInitialBoard 4 4 2 initialTileOptions
 
@@ -49,37 +47,37 @@ let commandSwitch args =
     match args with
     | [|"test"|] ->
         tests ()
-    | [|"randomLocalSearch"; trials|] ->
+    | [|"randomLocalSearch"; lookaheads; trials|] ->
         initialState
-        |> playExpectimax chooseByRandomImprovement (int trials)
+        |> playExpectimax (int lookaheads) chooseByRandomImprovement (int trials)
         ||> writeResult
-    | [|"maximalScoreLocalSearch"; trials|] ->
+    | [|"maximalScoreLocalSearch"; lookaheads; trials|] ->
         initialState
-        |> playExpectimax chooseByBestScore (int trials)
+        |> playExpectimax (int lookaheads) chooseByBestScore (int trials)
         ||> writeResult
-    | [|"maximalBlanksLocalSearch"; trials|] ->
+    | [|"maximalBlanksLocalSearch"; lookaheads; trials|] ->
         initialState
-        |> playExpectimax chooseByMostOpenSpaces (int trials)
+        |> playExpectimax (int lookaheads) chooseByMostOpenSpaces (int trials)
         ||> writeResult
-    | [|"maximalBlanksThenScoreLocalSearch"; trials|] ->
+    | [|"maximalBlanksThenScoreLocalSearch"; lookaheads; trials|] ->
         initialState
-        |> playExpectimax chooseByMostOpenSpacesWithHighestScore (int trials)
+        |> playExpectimax (int lookaheads) chooseByMostOpenSpacesWithHighestScore (int trials)
         ||> writeResult
-    | [|"maximalExpectedScoreLocalSearch"; trials|] ->
+    | [|"maximalExpectedScoreLocalSearch"; lookaheads; trials|] ->
         initialState
-        |> playExpectimax chooseByBestScoreExpectation (int trials)
+        |> playExpectimax (int lookaheads) chooseByBestScoreExpectation (int trials)
         ||> writeResult
-    | [|"EUMR"; trials|] ->
+    | [|"EUMR"; lookaheads; trials|] ->
         initialState
-        |> playExpectimax chooseByEUMR (int trials)
+        |> playExpectimax (int lookaheads) chooseByEUMR (int trials)
         ||> writeResult
-    | [|"ABPrunedMaximumScore"; trials|] ->
+    | [|"ABPrunedMaximumScore"; lookaheads; trials|] ->
         initialState
-        |> playAlphaBeta scoreByScore (int trials)
+        |> playAlphaBeta (int lookaheads) scoreByScore (int trials)
         ||> writeResult
-    | [|"MinimaxMaximumScore"; trials|] ->
+    | [|"MinimaxMaximumScore"; lookaheads; trials|] ->
         initialState
-        |> playMinimax scoreByScore (int trials)
+        |> playMinimax (int lookaheads) scoreByScore (int trials)
         ||> writeResult
     | _ ->
         printUsage ()
