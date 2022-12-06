@@ -83,8 +83,6 @@ let alphaBetaMinimaxSearch scoreTree tileInsertionOptions depth state =
         |> SearchTree.mapStateToMany
         >> minRecurThroughChildren depth initMinV alpha beta
     
-    
-    
     let root =
         state
         |> SearchTree.toSearchTreeRoot
