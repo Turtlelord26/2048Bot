@@ -4,6 +4,7 @@ open LocalSearch.Scoring.Scorers
 open LocalSearch.Scoring.CompositeEvaluators
 open Game
 open RuntimeBenchmark
+open Test
 open Writer
 
 open System
@@ -19,11 +20,24 @@ ExpectimaxEUMR will play 2048 using expectimax search and a multistage heuristic
 Lookahead depth is the depth of search trees generated when calculating the next move. Must be >=2. 2 is the most well-tested. 3 and above run slowly.
 
 Trials is the number of games the program will run back to back. Only the highest-scoring game will be printed to console. Must be >=1.
+
+To run unit tests: dotnet run test
 "
 
 let printUsage () =
     usage
     |> writeStringToConsole
+
+let tests () =
+    testBasicShifts
+    testOrderMatters
+    testOrderMatters2
+    testPackedBoard
+    testRightUp
+    testUp2
+    testUnlikePacked
+    testMilestone1SampleFirstMove
+    testMilestone1SampleSecondMove
 
 let tileInsertionOptions = [Exponent 1; Exponent 2]
 
@@ -39,6 +53,8 @@ let initialState = makeInitialBoard 4 4 2 initialTileOptions
 
 let commandSwitch args =
     match args with
+    | [|"test"|] ->
+        tests ()
     | [|"ExpectimaxMaximumScore"; lookaheads; trials|] ->
         initialState
         |> playExpectimax (int lookaheads) chooseByBestScoreExpectation (int trials)
