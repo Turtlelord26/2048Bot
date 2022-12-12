@@ -1,7 +1,7 @@
 module LocalSearch.Actions
 
+open Action
 open Moves
-open SearchTree
 
 let returnFromTerminalState state actions =
     state, actions |> Seq.rev

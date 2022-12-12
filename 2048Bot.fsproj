@@ -16,7 +16,9 @@
     <Compile Include="gameplay/GameState.fs" />
     <Compile Include="gameplay/Moves.fs" />
     <Compile Include="gameplay/Initialization.fs" />
+    <Compile Include="Action.fs" />
     <Compile Include="SearchTree.fs" />
+    <Compile Include="localSearch/TranspositionTable.fs" />
     <Compile Include="localSearch/LocalSearchActions.fs" />
     <Compile Include="localSearch/scoring/Scorers.fs" />
     <Compile Include="localSearch/scoring/UnitaryEvaluators.fs" />

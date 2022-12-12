@@ -1,91 +1,65 @@
-module SearchTree
+namespace SearchTree
 
+open Action
 open Game
-open StringUtils
 
-type Action =
-    | Left
-    | Right
-    | Up
-    | Down
-    with
-
-    static member toString action =
-        match action with
-        | Left -> "L"
-        | Right -> "R"
-        | Up -> "U"
-        | Down -> "D"
-
-    static member manyToString =
-        Seq.map Action.toString
-        >> Seq.reduce concatWithComma
-
-type SearchTree =
-    | Empty
-    | Tree of 
+type SearchTree = 
+    Tree of 
         state: GameState
         * action: Action option
-        * parent: SearchTree
+        * parent: SearchTree option
         * children: SearchTree seq
     with
 
-    static member empty = Empty
+    static member empty = Tree (GameState.empty, None, None, Seq.empty)
 
-    static member mapState mapper ifEmpty searchTree =
-        match searchTree with
-        | Tree (state, _, _, _) ->
-            mapper state
-        | Empty ->
-            ifEmpty
+    static member private getState (Tree (state, _, _, _)) = state
+
+    static member mapState mapper (Tree (state, _, _, _)) = mapper state
         
-    static member private actionOf tree =
-        match tree with
-        | Tree (_, action, _, _) ->
-            action
-        | Empty ->
-            None
+    static member private actionOf (Tree (_, action, _, _)) = action
+
+    static member getChildren (Tree (_, _, _, children)) = children
 
     static member toSearchTreeRoot state =
-        Tree (state, None, Empty, Seq.empty)
+        Tree (state, None, None, Seq.empty)
     
-    static member mapStateToMany mapper tree =
-        match tree with
-        | Tree (state, action, parent, children) ->
-            let returnToTrees =
-                Seq.map (fun newState -> Tree (newState, action, parent, children))
-            state
-            |> mapper
-            |> returnToTrees
-        | Empty ->
-            Seq.empty
+    static member mapStateToMany mapper (Tree (state, action, parent, children)) =
+        
+        let returnToTree newState =
+            Tree (newState, action, parent, children)
+        
+        state
+        |> mapper
+        |> Seq.map returnToTree
     
-    static member private expandLegalMoves parentTree parentState =
+    static member private expandLegalMoves parentTree =
+
+        let parentState = parentTree |> SearchTree.getState 
 
         let toChildTree action parent child =
-            Tree (child, Some action, parent, Seq.empty)
+            Tree (child, Some action, Some parent, Seq.empty)
 
         seq {GameState.shiftLeft parentState |> toChildTree Left parentTree;
                 GameState.shiftRight parentState |> toChildTree Right parentTree;
                 GameState.shiftUp parentState |> toChildTree Up parentTree;
                 GameState.shiftDown parentState |> toChildTree Down parentTree;}
-        |> Seq.filter (SearchTree.mapState ((<>) parentState) false)
+        |> Seq.filter (SearchTree.mapState ((<>) parentState))
     
     static member private expandNode insertTile tree =
         
-        let childrenOf parentTree =
-            SearchTree.expandLegalMoves parentTree
+        let childrenOf =
+            SearchTree.expandLegalMoves
             >> Seq.map insertTile
             >> Seq.concat
+        
+        let (Tree (state, action, parent, children)) = tree
 
-        match tree with
-        | (Tree (state = state; action = action; parent = parent; children = _;)) ->
-            Tree (state,
-                  action,
-                  parent,
-                  childrenOf tree state)
-        | Empty ->
-            Empty
+        match children |> Seq.tryHead with
+        | Some _ ->
+            tree
+        | None ->
+            Tree (state, action, parent, childrenOf tree)
     
     static member expandNodeWithoutInsertion =
         SearchTree.expandNode Seq.singleton
@@ -95,21 +69,13 @@ type SearchTree =
         >> SearchTree.mapStateToMany
         >> SearchTree.expandNode
 
-    static member getChildren tree =
-        match tree with
-        | Tree (_, _, _, children) ->
-            children
-        | Empty ->
-            Seq.empty
-
     static member private pathToRoot tree =
         
         let rec climb path tree =
             match tree with
-            | Tree (_, None, _, _)
-            | Empty ->
+            | Tree (_, _, None, _) ->
                 path
-            | Tree (_, _, parent, _) ->
+            | Tree (_, _, Some parent, _) ->
                 climb (parent :: path) parent
         
         climb [tree] tree

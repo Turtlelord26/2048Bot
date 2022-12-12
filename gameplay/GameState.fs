@@ -7,6 +7,8 @@ type GameState =
         board: Tile[,]
         * score: int
     with
+
+    static member empty = GameState.initialState 0 0
     
     static member boardOf (State (board, _)) = board
 
@@ -97,5 +99,4 @@ type GameState =
         |> Board.getBlankTileIndices
         |> Seq.map (addTileAtIndex state)
         |> Seq.allPairs possibleTiles
-        |> Seq.map (fun (tile, assignment) -> tile |> assignment)
-        |> Seq.concat
+        |> Seq.collect (fun (tile, assignment) -> tile |> assignment)

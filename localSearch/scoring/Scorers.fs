@@ -4,7 +4,7 @@ open Game
 open SearchTree
 
 let scoreByScore =
-    SearchTree.mapState GameState.scoreOf 0
+    SearchTree.mapState GameState.scoreOf
     >> float
 
 let scoreByBlanks =
@@ -14,7 +14,7 @@ let scoreByBlanks =
         >> Board.getBlankTiles
         >> Seq.length
 
-    SearchTree.mapState countBlankTiles 0
+    SearchTree.mapState countBlankTiles
     >> float
 
 let scoreByMonotonicity =
@@ -55,7 +55,7 @@ let scoreByMonotonicity =
     let scoreStateMonotonicity state =
         scoreMaxCornerMonotonicity (rowsAndCols state) comparators 
     
-    SearchTree.mapState scoreStateMonotonicity 0
+    SearchTree.mapState scoreStateMonotonicity
     >> float
 
 let scoreByUniformity =
@@ -76,4 +76,4 @@ let scoreByUniformity =
         >> Seq.map cubeCount
         >> Seq.fold (+) 0.
     
-    SearchTree.mapState uniformity 0.
+    SearchTree.mapState uniformity

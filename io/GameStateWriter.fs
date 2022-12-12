@@ -4,9 +4,9 @@ open System
 open System.IO
 open System.Security
 
+open Action
 open Array2DUtils
 open Game
-open SearchTree
 open StringUtils
 
 let writeStringToConsole = printfn "%s"
