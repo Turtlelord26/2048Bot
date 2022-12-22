@@ -2,34 +2,38 @@ module LocalSearch.Actions
 
 open Action
 open Moves
+open SearchTree
 
 let returnFromTerminalState state actions =
     state, actions |> Seq.rev
 
-let searchActionsUntilTermination tileInsertionOptions determineAction returnFromTerminalState =
+let searchActionsUntilTermination tileInsertionOptions determineAction returnFromTerminalState tree =
 
-    let rec recurSearch actions state =
+    let move action =
+        match action with
+        | Left -> moveLeft
+        | Right -> moveRight
+        | Up -> moveUp
+        | Down -> moveDown
+        <| tileInsertionOptions
+
+    let rec determineNextActionOrReturnIfNone actions tree =
         match
-            state
-            |> determineAction
+            tree |> determineAction
         with
-        | Some Left ->
-            state
-            |> moveLeft tileInsertionOptions
-            |> recurSearch (Left :: actions)
-        | Some Right ->
-            state
-            |> moveRight tileInsertionOptions
-            |> recurSearch (Right :: actions)
-        | Some Up ->
-            state
-            |> moveUp tileInsertionOptions
-            |> recurSearch (Up :: actions)
-        | Some Down ->
-            state
-            |> moveDown tileInsertionOptions
-            |> recurSearch (Down :: actions)
-        | None ->
-            returnFromTerminalState state actions
+        | Some action, possibleChildren ->
+            executeActionAndRecurSearch actions action tree possibleChildren
+        | None, _ ->
+            returnFromTerminalState (tree |> SearchTree.getState) actions
+
+    and executeActionAndRecurSearch actions action tree possibleChildren =
+        let nextState =
+            tree
+            |> SearchTree.mapState (move action)
+        
+        possibleChildren
+        |> Seq.find (SearchTree.getState >> ((=) nextState))
+        |> SearchTree.mapState SearchTree.toSearchTreeRoot
+        |> determineNextActionOrReturnIfNone (action :: actions)
     
-    recurSearch []
+    determineNextActionOrReturnIfNone [] tree

@@ -4,6 +4,7 @@ open LocalSearch.Scoring.Scorers
 open LocalSearch.Scoring.CompositeEvaluators
 open Game
 open RuntimeBenchmark
+open SearchTree
 open Test
 open Writer
 
@@ -12,7 +13,6 @@ open System
 let usage = @"
 Usage: dotnet run [keyword] [lookahead depth] [trials].
 Keywords:
-MinimaxMaximumScore will play 2048 using a minimax search that uses the ingame score of states
 ABPrunedMinimaxMaximumScore will play 2048 using an alpha-beta pruned minimax search, using the ingame scores of states.
 ExpectimaxMaximumScore will play 2048 25 times using an expectimax search that uses ingame scores
 ExpectimaxEUMR will play 2048 using expectimax search and a multistage heuristic to evaluate states
@@ -45,11 +45,11 @@ let playExpectimax = playTrialsWithExhaustiveSearch tileInsertionOptions
 
 let playAlphaBeta = playTrialsWithAlphaBetaPruning tileInsertionOptions
 
-let playMinimax = playTrialsWithMinimax tileInsertionOptions
-
 let initialTileOptions = [Exponent 1]
 
-let initialState = makeInitialBoard 4 4 2 initialTileOptions
+let initialState = 
+    makeInitialBoard 4 4 2 initialTileOptions
+    |> SearchTree.toSearchTreeRoot
 
 let commandSwitch args =
     match args with
@@ -66,10 +66,6 @@ let commandSwitch args =
     | [|"ABPrunedMaximumScore"; lookaheads; trials|] ->
         initialState
         |> playAlphaBeta (int lookaheads) scoreByScore (int trials)
-        ||> writeResult
-    | [|"MinimaxMaximumScore"; lookaheads; trials|] ->
-        initialState
-        |> playMinimax (int lookaheads) scoreByScore (int trials)
         ||> writeResult
     | _ ->
         printUsage ()

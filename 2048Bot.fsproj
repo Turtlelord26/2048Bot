@@ -18,13 +18,11 @@
     <Compile Include="gameplay/Initialization.fs" />
     <Compile Include="Action.fs" />
     <Compile Include="SearchTree.fs" />
-    <Compile Include="localSearch/TranspositionTable.fs" />
     <Compile Include="localSearch/LocalSearchActions.fs" />
     <Compile Include="localSearch/scoring/Scorers.fs" />
     <Compile Include="localSearch/scoring/UnitaryEvaluators.fs" />
     <Compile Include="localSearch/scoring/CompositeEvaluators.fs" />
     <Compile Include="localSearch/searchAlgorithms/ExhaustiveSearch.fs" />
-    <Compile Include="localSearch/searchAlgorithms/Minimax.fs" />
     <Compile Include="localSearch/searchAlgorithms/AlphaBetaPrunedMinimax.fs" />
     <Compile Include="localSearch/LocalSearchPlay.fs" />
     <Compile Include="io/GameStateWriter.fs" />

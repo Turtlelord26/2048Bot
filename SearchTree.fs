@@ -13,7 +13,7 @@ type SearchTree =
 
     static member empty = Tree (GameState.empty, None, None, Seq.empty)
 
-    static member private getState (Tree (state, _, _, _)) = state
+    static member getState (Tree (state, _, _, _)) = state
 
     static member mapState mapper (Tree (state, _, _, _)) = mapper state
         
@@ -41,25 +41,25 @@ type SearchTree =
             Tree (child, Some action, Some parent, Seq.empty)
 
         seq {GameState.shiftLeft parentState |> toChildTree Left parentTree;
-                GameState.shiftRight parentState |> toChildTree Right parentTree;
-                GameState.shiftUp parentState |> toChildTree Up parentTree;
-                GameState.shiftDown parentState |> toChildTree Down parentTree;}
+             GameState.shiftRight parentState |> toChildTree Right parentTree;
+             GameState.shiftUp parentState |> toChildTree Up parentTree;
+             GameState.shiftDown parentState |> toChildTree Down parentTree;}
         |> Seq.filter (SearchTree.mapState ((<>) parentState))
     
     static member private expandNode insertTile tree =
         
-        let childrenOf =
-            SearchTree.expandLegalMoves
-            >> Seq.map insertTile
-            >> Seq.concat
-        
         let (Tree (state, action, parent, children)) = tree
 
-        match children |> Seq.tryHead with
-        | Some _ ->
-            tree
-        | None ->
+        if children |> Seq.isEmpty
+        then
+            let childrenOf =
+                SearchTree.expandLegalMoves
+                >> Seq.collect insertTile
+                >> Seq.cache
+
             Tree (state, action, parent, childrenOf tree)
+        else
+            tree
     
     static member expandNodeWithoutInsertion =
         SearchTree.expandNode Seq.singleton
@@ -68,18 +68,18 @@ type SearchTree =
         GameState.expandInsertionPossibilities
         >> SearchTree.mapStateToMany
         >> SearchTree.expandNode
+    
+    static member getFirstLevelChild =
 
-    static member private pathToRoot tree =
-        
-        let rec climb path tree =
-            match tree with
+        let rec climbToDepth1 lastChild currentChild =
+            match currentChild with
             | Tree (_, _, None, _) ->
-                path
+                lastChild
             | Tree (_, _, Some parent, _) ->
-                climb (parent :: path) parent
-        
-        climb [tree] tree
+                climbToDepth1 currentChild parent
+
+        climbToDepth1 SearchTree.empty
     
     static member getRootCauseAction =
-        SearchTree.pathToRoot
-        >> Seq.tryPick SearchTree.actionOf
+        SearchTree.getFirstLevelChild
+        >> SearchTree.actionOf

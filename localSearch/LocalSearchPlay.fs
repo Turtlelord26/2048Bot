@@ -4,7 +4,6 @@ open Game
 open LocalSearch.Actions
 open LocalSearch.AlphaBetaPrunedMinimax
 open LocalSearch.ExhaustiveSearch
-open LocalSearch.Minimax
 
 let private runSearch numTrials initialState =
     Seq.replicate numTrials
@@ -20,15 +19,11 @@ let playTrialsWithExhaustiveSearch tileInsertionOptions depth evaluationFunction
     localSearch
     |> runSearch numTrials initialState
 
-let private playWithMinimaxSearch minimaxSearch tileInsertionOptions depth scoringFunction numTrials initialState =
+let playTrialsWithAlphaBetaPruning tileInsertionOptions depth scoringFunction numTrials initialState =
 
-    let searchFunction = minimaxSearch scoringFunction tileInsertionOptions depth
+    let searchFunction = alphaBetaMinimaxSearch scoringFunction tileInsertionOptions depth
     
     let localSearch = searchActionsUntilTermination tileInsertionOptions searchFunction returnFromTerminalState
 
     localSearch
     |> runSearch numTrials initialState
-
-let playTrialsWithAlphaBetaPruning tileInsertionOptions = playWithMinimaxSearch alphaBetaMinimaxSearch tileInsertionOptions
-
-let playTrialsWithMinimax tileInsertionOptions = playWithMinimaxSearch minimaxSearch tileInsertionOptions

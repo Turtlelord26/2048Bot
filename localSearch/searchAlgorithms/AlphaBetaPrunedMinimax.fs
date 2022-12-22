@@ -32,7 +32,7 @@ let private alphaTest v alpha =
 let private betaTest v beta =
     compareVToConst (>=) v beta
 
-let alphaBetaMinimaxSearch scoreTree tileInsertionOptions depth state =
+let alphaBetaMinimaxSearch scoreTree tileInsertionOptions depth tree =
 
     let rec depthTest depth alpha beta tree =
         if
@@ -83,21 +83,22 @@ let alphaBetaMinimaxSearch scoreTree tileInsertionOptions depth state =
         |> SearchTree.mapStateToMany
         >> minRecurThroughChildren depth initMinV alpha beta
     
-    let root =
-        state
-        |> SearchTree.toSearchTreeRoot
-    
-    let choice =
-        root
+    let chosenAction =
+        tree
         |> maxValue depth initAlpha initBeta
         |> snd
         |> SearchTree.getRootCauseAction
     
-    match choice with
-    | Some _ -> choice
+    let firstLevelChildren =
+        tree
+        |> SearchTree.expandNodeWithExhaustiveInsertion tileInsertionOptions
+        |> SearchTree.getChildren
+    
+    match chosenAction with
+    | Some _ -> chosenAction
     | None ->
         match
-            root
+            tree
             |> SearchTree.expandNodeWithoutInsertion
             |> SearchTree.getChildren
             |> Seq.map SearchTree.getRootCauseAction
@@ -105,3 +106,4 @@ let alphaBetaMinimaxSearch scoreTree tileInsertionOptions depth state =
         with
         | Some actionOption -> actionOption
         | None -> None
+    , firstLevelChildren
